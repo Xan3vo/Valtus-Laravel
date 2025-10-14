@@ -1,0 +1,276 @@
+================================================================================
+                           VALTUS SYSTEM FLOW
+================================================================================
+
+📋 ALUR KESELURUHAN SISTEM VALTUS
+================================================================================
+
+🎯 OVERVIEW:
+   Sistem Valtus mengelola proses pembelian Robux dan item game dari awal 
+   pembelian customer sampai item masuk ke akun game mereka. Admin memiliki 
+   kontrol penuh untuk memverifikasi pembayaran dan memproses pesanan.
+
+================================================================================
+📱 ALUR CUSTOMER (USER SIDE)
+================================================================================
+
+🔸 STEP 1: PEMBELIAN ROBUX
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 1. Customer buka website Valtus                            │
+   │ 2. Klik "Beli Robux" atau "Beli Robux Sekarang"           │
+   │ 3. Pilih jumlah Robux (Quick Pick atau Custom)            │
+   │ 4. Masukkan username Roblox dan klik "Cek"                │
+   │ 5. Sistem validasi username via Roblox API                │
+   │ 6. Klik "Lanjutkan Pembelian"                             │
+   └─────────────────────────────────────────────────────────────┘
+   ↓
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 7. Sistem cek GamePass customer                            │
+   │    - Jika GamePass ditemukan → lanjut ke pembayaran       │
+   │    - Jika tidak ditemukan → tampilkan modal instruksi     │
+   │ 8. Customer buat/atur GamePass sesuai harga yang ditentukan│
+   │ 9. Klik "Sudah Mengatur Gamepass"                         │
+   └─────────────────────────────────────────────────────────────┘
+   ↓
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 10. Masukkan email untuk notifikasi                       │
+   │ 11. Klik "Lanjutkan ke Pembayaran"                        │
+   │ 12. Pilih metode pembayaran (Manual/Gateway)              │
+   │ 13. Lakukan pembayaran sesuai instruksi                   │
+   │ 14. Upload bukti transfer (jika manual)                   │
+   │ 15. Klik "Kirim Bukti Transfer"                           │
+   └─────────────────────────────────────────────────────────────┘
+   ↓
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 16. Order dibuat dengan status:                            │
+   │     - payment_status: "waiting_confirmation"              │
+   │     - order_status: null                                  │
+   │ 17. Customer mendapat Order ID                            │
+   │ 18. Customer bisa cek status di "Cek Pesanan"             │
+   └─────────────────────────────────────────────────────────────┘
+
+🔸 STEP 2: PEMBELIAN ITEM GAME LAINNYA
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 1. Customer pilih produk di homepage                       │
+   │ 2. Klik produk yang diinginkan                            │
+   │ 3. Masukkan username game, jumlah, dan email              │
+   │ 4. Pilih metode pembayaran                                │
+   │ 5. Lakukan pembayaran dan upload bukti                    │
+   │ 6. Order dibuat dengan status sama seperti Robux          │
+   └─────────────────────────────────────────────────────────────┘
+
+================================================================================
+🔧 ALUR ADMIN (ADMIN SIDE)
+================================================================================
+
+🔸 STEP 1: KONFIRMASI PEMBAYARAN
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 1. Admin login ke panel admin                             │
+   │ 2. Buka menu "Payments"                                   │
+   │ 3. Lihat orders dengan status "waiting_confirmation"      │
+   │ 4. Klik Order ID untuk melihat detail                     │
+   │ 5. Periksa bukti transfer yang diupload customer          │
+   │ 6. Verifikasi nominal pembayaran                          │
+   └─────────────────────────────────────────────────────────────┘
+   ↓
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 7. Admin pilih aksi:                                      │
+   │    A. APPROVE (Setujui):                                  │
+   │       - payment_status: "completed"                       │
+   │       - order_status: "pending"                           │
+   │       - Order masuk ke menu "Orders"                      │
+   │    B. REJECT (Tolak):                                     │
+   │       - payment_status: "failed"                          │
+   │       - order_status: null                                │
+   │       - Order dihapus dari sistem                         │
+   └─────────────────────────────────────────────────────────────┘
+
+🔸 STEP 2: PROSES ORDER
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 1. Admin buka menu "Orders"                               │
+   │ 2. Lihat orders dengan status "pending"                   │
+   │ 3. Klik Order ID untuk melihat detail                     │
+   │ 4. Klik tombol "Proses Orderan"                           │
+   │ 5. Konfirmasi dengan modal popup                          │
+   └─────────────────────────────────────────────────────────────┘
+   ↓
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 6. Sistem otomatis update:                                │
+   │    - order_status: "pending" (tetap)                      │
+   │    - completed_at: dihitung otomatis                      │
+   │    - Robux: berdasarkan setting auto_complete_days        │
+   │    - Item lain: 15 jam dari sekarang                      │
+   │ 7. Customer mendapat notifikasi:                          │
+   │    "Robux akan masuk dalam X hari"                        │
+   │    "Item akan masuk dalam X jam"                          │
+   └─────────────────────────────────────────────────────────────┘
+
+🔸 STEP 3: PENGIRIMAN ROBUX/ITEM
+   ┌─────────────────────────────────────────────────────────────┐
+   │ 1. Admin kirim Robux ke akun customer via GamePass        │
+   │ 2. Admin kirim item ke akun game customer                 │
+   │ 3. Update order_status: "completed"                       │
+   │ 4. Customer mendapat notifikasi email                     │
+   │ 5. Customer bisa cek status di "Cek Pesanan"              │
+   └─────────────────────────────────────────────────────────────┘
+
+================================================================================
+📊 STATUS FLOW DIAGRAM
+================================================================================
+
+CUSTOMER FLOW:
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Beli Robux    │───▶│  Upload Bukti    │───▶│  Tunggu Konfirm │
+│                 │    │    Transfer      │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                                         │
+                                                         ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Robux Masuk   │◀───│   Admin Proses   │◀───│  Admin Konfirm  │
+│   (Completed)   │    │     Order        │    │   Pembayaran    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+
+STATUS PROGRESSION:
+waiting_confirmation → pending → completed
+     (Customer)         (Admin)     (Final)
+
+================================================================================
+⏰ TIMELINE & DURASI
+================================================================================
+
+🔸 PEMBAYARAN:
+   - Customer upload bukti: Langsung
+   - Admin verifikasi: 3-5 jam (manual)
+   - Gateway payment: Otomatis
+
+🔸 PROSES ORDER:
+   - Admin proses order: Langsung setelah konfirmasi
+   - Notifikasi ke customer: Otomatis
+
+🔸 PENGIRIMAN:
+   - Robux: 1-5 hari (berdasarkan setting)
+   - Item game lain: 15 jam
+   - Admin kirim: Manual sesuai timeline
+
+================================================================================
+📧 NOTIFIKASI CUSTOMER
+================================================================================
+
+🔸 EMAIL NOTIFIKASI:
+   1. Order dibuat: "Pesanan berhasil dibuat"
+   2. Pembayaran dikonfirmasi: "Pembayaran dikonfirmasi"
+   3. Order diproses: "Pesanan sedang diproses"
+   4. Robux/item masuk: "Pesanan selesai"
+
+🔸 STATUS DI WEBSITE:
+   1. Menunggu Konfirmasi: "Pembayaran sedang diverifikasi"
+   2. Pending: "Pesanan sedang diproses"
+   3. Completed: "Robux/item sudah masuk"
+
+================================================================================
+🎯 POINT OF CONTROL ADMIN
+================================================================================
+
+🔸 KONTROL PEMBAYARAN:
+   - Verifikasi bukti transfer
+   - Approve/Reject pembayaran
+   - Update status payment
+
+🔸 KONTROL ORDER:
+   - Proses order setelah konfirmasi
+   - Set timeline pengiriman
+   - Update status order
+
+🔸 KONTROL PENGIRIMAN:
+   - Kirim Robux via GamePass
+   - Kirim item ke akun game
+   - Update status final
+
+================================================================================
+🔄 WORKFLOW SUMMARY
+================================================================================
+
+1. CUSTOMER BELI → Order dibuat (waiting_confirmation)
+2. ADMIN KONFIRMASI → Payment approved (pending)
+3. ADMIN PROSES → Order diproses + notifikasi timeline
+4. ADMIN KIRIM → Robux/item masuk (completed)
+
+SETIAP STEP MEMILIKI:
+- Status yang jelas
+- Notifikasi ke customer
+- Log untuk tracking
+- Admin control penuh
+
+================================================================================
+📱 CUSTOMER EXPERIENCE
+================================================================================
+
+🔸 MUDAH & CEPAT:
+   - Proses pembelian sederhana
+   - Validasi username otomatis
+   - Instruksi GamePass jelas
+   - Status tracking real-time
+
+🔸 TRANSPARAN:
+   - Harga final, tidak ada biaya tersembunyi
+   - Timeline pengiriman jelas
+   - Status update berkala
+   - Garansi 100% aman
+
+🔸 SUPPORT:
+   - Customer service 24/7
+   - FAQ lengkap
+   - Kontak multiple channel
+   - Response cepat
+
+================================================================================
+🔧 ADMIN EXPERIENCE
+================================================================================
+
+🔸 KONTROL PENUH:
+   - Verifikasi pembayaran manual
+   - Proses order sesuai kebutuhan
+   - Timeline pengiriman fleksibel
+   - Update status real-time
+
+🔸 EFFISIENSI:
+   - Dashboard overview lengkap
+   - Filter dan search order
+   - Bulk operations
+   - Automated notifications
+
+🔸 MONITORING:
+   - Statistik real-time
+   - Reports dan analytics
+   - Log semua aktivitas
+   - Performance tracking
+
+================================================================================
+🎉 KEUNGGULAN SISTEM
+================================================================================
+
+✅ UNTUK CUSTOMER:
+   - Proses mudah dan cepat
+   - Harga transparan
+   - Garansi 100% aman
+   - Support responsif
+
+✅ UNTUK ADMIN:
+   - Kontrol penuh proses
+   - Verifikasi pembayaran manual
+   - Timeline pengiriman fleksibel
+   - Monitoring lengkap
+
+✅ UNTUK BISNIS:
+   - Sistem terintegrasi
+   - Scalable dan maintainable
+   - Security tinggi
+   - Performance optimal
+
+================================================================================
+                            END OF SYSTEM FLOW
+================================================================================
+
+Last Updated: $(date)
+Version: 1.0
+System: Valtus Platform

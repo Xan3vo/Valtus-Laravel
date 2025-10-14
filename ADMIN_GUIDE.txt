@@ -1,0 +1,400 @@
+================================================================================
+                           VALTUS ADMIN PANEL GUIDE
+================================================================================
+
+📋 DAFTAR ISI
+================================================================================
+1. LOGIN ADMIN
+2. DASHBOARD OVERVIEW
+3. PRODUCTS MANAGEMENT
+4. ORDERS MANAGEMENT
+5. PAYMENTS MANAGEMENT
+6. SETTINGS MANAGEMENT
+7. MEDIA MANAGEMENT
+8. REPORTS & ANALYTICS
+9. TROUBLESHOOTING
+10. BEST PRACTICES
+
+================================================================================
+1. LOGIN ADMIN
+================================================================================
+
+🔐 KREDENSIAL LOGIN:
+   URL: http://localhost:8000/admin/login
+   Email: admin@valtus.com
+   Password: admin123
+
+⚠️  PENTING:
+   - Ganti password default setelah login pertama kali
+   - Jangan bagikan kredensial ini ke orang lain
+   - Gunakan password yang kuat dan unik
+
+================================================================================
+2. DASHBOARD OVERVIEW
+================================================================================
+
+📊 STATISTIK UTAMA:
+   - Pending Confirmation: Pesanan menunggu konfirmasi pembayaran
+   - Uang Bersih: Total pendapatan dari pesanan completed
+   - Pending Orders: Pesanan yang sudah dibayar tapi belum diproses
+   - Total Orders: Jumlah total pesanan
+
+📈 GRAFIK PENDAPATAN:
+   - Grafik harian pendapatan
+   - Filter berdasarkan tanggal
+   - Visualisasi trend pendapatan
+
+🎯 QUICK ACTIONS:
+   - Akses cepat ke menu utama
+   - Notifikasi pesanan baru
+   - Status update real-time
+
+================================================================================
+3. PRODUCTS MANAGEMENT
+================================================================================
+
+🎮 ROBUX PRICING:
+   Lokasi: Products > Robux Pricing
+
+   FITUR:
+   - Set harga per 100 Robux
+   - Harga otomatis dihitung untuk semua paket
+   - Minimal order amount
+   - GamePass tax rate (default 30%)
+
+   CARA PENGGUNAAN:
+   1. Masuk ke Products > Robux Pricing
+   2. Input harga per 100 Robux (contoh: 15000)
+   3. Set minimal order (contoh: 100)
+   4. Set tax rate untuk GamePass (contoh: 30%)
+   5. Klik "Update Pricing"
+
+   CONTOH PERHITUNGAN:
+   - Harga per 100: Rp 15.000
+   - 500 Robux = (500/100) × 15.000 = Rp 75.000 (harga yang dibayar customer)
+   - GamePass dibuat dengan harga: 500 × 1.3 = 650 Robux
+   - Setelah dipotong pajak Roblox 30%, customer mendapat: 650 - (650 × 0.3) = 455 Robux
+   - Untuk mendapat 500 Robux pas, GamePass dibuat: 500 ÷ 0.7 = 714 Robux
+
+🎯 OTHER PRODUCTS:
+   Lokasi: Products > Other Products
+
+   FITUR:
+   - Tambah produk game lain (item, Voucher, dll)
+   - Upload gambar produk
+   - Set harga dan deskripsi
+   - Toggle aktif/nonaktif
+   - Kategori game
+
+   CARA PENGGUNAAN:
+   1. Klik "Add New Product"
+   2. Isi nama produk
+   3. Pilih kategori game
+   4. Upload gambar (opsional)
+   5. Set harga
+   6. Toggle status aktif
+   7. Simpan
+
+================================================================================
+4. ORDERS MANAGEMENT
+================================================================================
+
+📦 LOKASI: Orders
+
+📋 FILTER & STATUS:
+   - Default: Menampilkan pending orders (yang sudah dibayar)
+   - Filter: Completed, All Orders
+   - Sort: Paling lama di atas
+
+📊 KOLOM TABEL:
+   - ID: Order ID unik (format: ABC123)
+   - Date: Tanggal pesanan dibuat
+   - Username: Username Roblox customer
+   - Product: Jenis produk (Robux/Other)
+   - Quantity: Jumlah item
+   - Price: Harga per item
+   - Total: Total pembayaran
+   - Status: Order status (pending/completed)
+
+🔍 DETAIL ORDER:
+   Klik order ID untuk melihat detail lengkap:
+   - Data customer (username, email)
+   - Detail produk dan harga
+   - Status pembayaran
+   - Timeline status
+   - Admin notes
+
+⚡ PROSES ORDER:
+   1. Klik "Proses Orderan" pada order pending
+   2. Konfirmasi dengan modal popup
+   3. Order status berubah ke "pending"
+   4. Completed date otomatis dihitung:
+      - Robux: Berdasarkan setting auto_complete_days
+      - Other: 15 jam dari sekarang
+
+📝 ADMIN NOTES:
+   - Tambah catatan untuk customer
+   - Update status manual jika diperlukan
+   - Komunikasi internal tim
+
+================================================================================
+5. PAYMENTS MANAGEMENT
+================================================================================
+
+💰 LOKASI: Payments
+
+📊 STATISTIK:
+   - Pending Confirmation: Menunggu konfirmasi admin
+   - Uang Bersih: Total dari completed orders
+   - Filter: Waiting Confirmation, Completed, Failed
+
+📋 KOLOM TABEL:
+   - ID: Order ID
+   - Date: Tanggal pesanan
+   - Username: Customer username
+   - Quantity: Jumlah item
+   - Price: Harga per item
+   - Total: Total pembayaran
+   - Status: Payment status
+   - Actions: View, Approve, Reject
+
+🔍 DETAIL PEMBAYARAN:
+   Klik order ID untuk melihat:
+   - Data customer lengkap
+   - Detail pembayaran
+   - Bukti transfer (jika ada)
+   - GamePass link (untuk Robux)
+   - Admin notes
+
+✅ KONFIRMASI PEMBAYARAN:
+   
+   APPROVE (Setujui):
+   - Payment status: completed
+   - Order status: pending
+   - Order masuk ke antrian proses
+   
+   REJECT (Tolak):
+   - Payment status: failed
+   - Order status: null
+   - Order dihapus dari sistem
+
+📎 BUKTI TRANSFER:
+   - Lihat file bukti yang diupload customer
+   - Download untuk verifikasi
+   - Pastikan nominal sesuai
+
+================================================================================
+6. SETTINGS MANAGEMENT
+================================================================================
+
+⚙️ GENERAL SETTINGS:
+   Lokasi: Settings > General Settings
+
+   WEBSITE INFO:
+   - Site Name: Nama website (Valtus)
+   - Site Description: Deskripsi singkat
+   - Site Keywords: Keywords SEO
+   - Site Logo: Upload logo (opsional)
+
+   CONTACT INFO:
+   - WhatsApp: Nomor WhatsApp customer service
+   - Email: Email support
+   - Address: Alamat lengkap
+
+   SOCIAL MEDIA:
+   - Instagram: @username atau link
+   - TikTok: @username atau link
+   - Facebook: Link halaman
+   - Discord: Server invite link
+   - Telegram: @username atau link
+   - YouTube: Channel link
+
+   ROBUX SETTINGS:
+   - Minimal Order: Minimal pembelian Robux
+   - Auto Complete Days: Hari otomatis selesai (default: 3)
+
+💳 PAYMENT SETTINGS:
+   Lokasi: Settings > Payment Settings
+
+   PAYMENT MODE:
+   - Manual: QRIS + bukti transfer
+   - Gateway: Third-party payment gateway
+
+   MANUAL PAYMENT (QRIS):
+   - Upload QRIS image
+   - Set instruksi pembayaran
+   - Processing time: 3-5 jam
+
+   GATEWAY PAYMENT:
+   - API Key: Kunci API gateway
+   - Secret Key: Secret key
+   - Webhook URL: URL untuk callback
+   - Processing time: Real-time
+
+================================================================================
+7. MEDIA MANAGEMENT
+================================================================================
+
+🎨 LOKASI: Settings > Media Management
+
+🖼️ HOME HERO IMAGE:
+   - Upload file atau masukkan URL
+   - Ukuran rekomendasi: 1200x600px
+   - Format: PNG, JPG, GIF, WebP
+   - Maksimal: 50MB
+
+📹 CARA BELI VIDEO:
+   - Upload file video atau YouTube URL
+   - Format: MP4, AVI, MOV, WMV, FLV, WebM
+   - YouTube: Gunakan format watch URL
+   - Maksimal: 50MB
+
+🎮 CARA GAMEPASS VIDEO:
+   - Upload file video atau YouTube URL
+   - Instruksi cara buat GamePass di Roblox
+   - Format sama dengan Cara Beli Video
+
+🔄 PREVIEW SYSTEM:
+   - Auto-preview untuk file upload
+   - Auto-preview untuk URL (1 detik delay)
+   - YouTube URL otomatis convert ke embed
+   - Hapus preview sebelum upload baru
+
+================================================================================
+8. REPORTS & ANALYTICS
+================================================================================
+
+📊 LOKASI: Reports
+
+📈 PENDAPATAN HARIAN:
+   - Grafik pendapatan per hari
+   - Filter berdasarkan tanggal
+   - Export data (opsional)
+
+💰 ANALISIS PROFIT:
+   - Total revenue
+   - Net profit
+   - Growth rate
+   - Trend analysis
+
+📋 DETAIL REPORTS:
+   - Breakdown per produk
+   - Performance metrics
+   - Customer analytics
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+❌ MASALAH UMUM:
+
+1. LOGIN GAGAL:
+   - Pastikan email: admin@valtus.com
+   - Pastikan password: admin123
+   - Clear browser cache
+   - Cek koneksi database
+
+2. GAMBAR TIDAK MUNCUL:
+   - Cek file ada di public/media/
+   - Pastikan permission folder benar
+   - Cek path di database settings
+
+3. VIDEO TIDAK PLAY:
+   - Pastikan format didukung browser
+   - Cek ukuran file (max 50MB)
+   - Untuk YouTube, pastikan URL benar
+
+4. ORDER TIDAK MUNCUL:
+   - Cek filter status
+   - Pastikan order sudah dibayar
+   - Cek payment status
+
+5. EMAIL TIDAK TERKIRIM:
+   - Cek konfigurasi SMTP di .env
+   - Pastikan email settings benar
+   - Test dengan email sederhana
+
+🔧 SOLUSI CEPAT:
+
+1. CLEAR CACHE:
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan view:clear
+
+2. RESET DATABASE:
+   php artisan migrate:fresh --seed
+
+3. CHECK LOGS:
+   tail -f storage/logs/laravel.log
+
+================================================================================
+10. BEST PRACTICES
+================================================================================
+
+✅ KEAMANAN:
+   - Ganti password default segera
+   - Gunakan password kuat (min 12 karakter)
+   - Jangan bagikan kredensial
+   - Logout setelah selesai
+
+✅ BACKUP:
+   - Backup database reguler
+   - Backup file uploads
+   - Simpan konfigurasi penting
+
+✅ MONITORING:
+   - Cek orders pending setiap hari
+   - Monitor pembayaran masuk
+   - Update status order tepat waktu
+   - Respond customer queries cepat
+
+✅ MAINTENANCE:
+   - Update Laravel secara berkala
+   - Monitor disk space
+   - Clean old files
+   - Optimize database
+
+✅ CUSTOMER SERVICE:
+   - Konfirmasi pembayaran dalam 3-5 jam
+   - Proses order sesuai SLA
+   - Komunikasi yang jelas
+   - Follow up jika ada masalah
+
+================================================================================
+📞 SUPPORT & CONTACT
+================================================================================
+
+Untuk bantuan teknis atau pertanyaan:
+- Email: admin@valtus.com
+- Dokumentasi: README.md
+- Logs: storage/logs/laravel.log
+
+================================================================================
+🎯 QUICK REFERENCE
+================================================================================
+
+URL PENTING:
+- Admin Login: /admin/login
+- Dashboard: /admin/dashboard
+- Orders: /admin/orders
+- Payments: /admin/payments
+- Settings: /admin/settings
+- Media: /admin/media
+
+SHORTCUT KEYS:
+- Ctrl + S: Save form
+- Esc: Close modal
+- Enter: Submit form
+
+STATUS CODES:
+- waiting_confirmation: Menunggu konfirmasi admin
+- completed: Pembayaran selesai
+- pending: Order sedang diproses
+- failed: Pembayaran gagal
+
+================================================================================
+                            END OF ADMIN GUIDE
+================================================================================
+
+Last Updated: $(date)
+Version: 1.0

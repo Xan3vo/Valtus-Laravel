@@ -1,0 +1,467 @@
+================================================================================
+                           VALTUS INSTALLATION GUIDE
+================================================================================
+
+🎮 Panduan Instalasi Lengkap Platform Valtus
+   Top Up Robux & Game Items
+
+📋 DAFTAR ISI
+================================================================================
+1. PREREQUISITES (SYARAT SISTEM)
+2. INSTALASI LARAVEL & DEPENDENCIES
+3. SETUP DATABASE
+4. KONFIGURASI ENVIRONMENT
+5. MIGRASI & SEEDING DATABASE
+6. SETUP STORAGE & PERMISSIONS
+7. MENJALANKAN APLIKASI
+8. VERIFIKASI INSTALASI
+9. TROUBLESHOOTING
+10. PRODUCTION DEPLOYMENT
+
+================================================================================
+1. PREREQUISITES (SYARAT SISTEM)
+================================================================================
+
+🔧 SOFTWARE YANG DIPERLUKAN:
+
+✅ PHP 8.2 atau lebih tinggi
+   - Extension: BCMath, Ctype, cURL, DOM, Fileinfo, JSON, Mbstring, OpenSSL, PCRE, PDO, Tokenizer, XML, GD, MySQL
+
+✅ Composer (PHP Package Manager)
+   - Download: https://getcomposer.org/download/
+   - Install global: php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+✅ MySQL 5.7 atau lebih tinggi
+   - Download: https://dev.mysql.com/downloads/mysql/
+   - Atau gunakan XAMPP/WAMP/MAMP
+
+✅ Node.js & NPM (untuk asset compilation)
+   - Download: https://nodejs.org/
+   - Versi LTS recommended
+
+✅ Git (untuk clone repository)
+   - Download: https://git-scm.com/downloads
+
+✅ Web Server (Apache/Nginx)
+   - XAMPP: https://www.apachefriends.org/
+   - WAMP: http://www.wampserver.com/
+   - MAMP: https://www.mamp.info/
+
+================================================================================
+2. INSTALASI LARAVEL & DEPENDENCIES
+================================================================================
+
+🔸 STEP 1: CLONE REPOSITORY
+   ```bash
+   git clone <repository-url>
+   cd valtus
+   ```
+
+🔸 STEP 2: INSTALL PHP DEPENDENCIES
+   ```bash
+   composer install
+   ```
+
+🔸 STEP 3: INSTALL NODE DEPENDENCIES
+   ```bash
+   npm install
+   ```
+
+🔸 STEP 4: COMPILE ASSETS (OPTIONAL)
+   ```bash
+   # Development
+   npm run dev
+   
+   # Production
+   npm run build
+   ```
+
+================================================================================
+3. SETUP DATABASE
+================================================================================
+
+🔸 STEP 1: BUAT DATABASE MYSQL
+   
+   OPSI A - MELALUI PHPMYADMIN (XAMPP/WAMP):
+   1. Buka http://localhost/phpmyadmin
+   2. Klik "New" untuk membuat database baru
+   3. Nama database: valtus
+   4. Collation: utf8mb4_unicode_ci
+   5. Klik "Create"
+
+================================================================================
+4. KONFIGURASI ENVIRONMENT
+================================================================================
+
+🔸 STEP 1: COPY ENVIRONMENT FILE
+   ```bash
+   cp .env.example .env
+   ```
+
+🔸 STEP 2: GENERATE APPLICATION KEY
+   ```bash
+   php artisan key:generate
+   ```
+
+🔸 STEP 3: EDIT FILE .ENV
+   Buka file .env dan sesuaikan konfigurasi:
+
+   ```env
+   APP_NAME="Valtus"
+   APP_ENV=local
+   APP_KEY=base64:generated_key_here
+   APP_DEBUG=true
+   APP_URL=http://localhost:8000
+
+   LOG_CHANNEL=stack
+   LOG_DEPRECATIONS_CHANNEL=null
+   LOG_LEVEL=debug
+
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=valtus
+   DB_USERNAME=root
+   DB_PASSWORD=
+
+   # Jika menggunakan user database khusus:
+   # DB_USERNAME=valtus_user
+   # DB_PASSWORD=valtus_password
+
+   BROADCAST_DRIVER=log
+   CACHE_DRIVER=file
+   FILESYSTEM_DISK=local
+   QUEUE_CONNECTION=sync
+   SESSION_DRIVER=file
+   SESSION_LIFETIME=120
+
+   MEMCACHED_HOST=127.0.0.1
+
+   REDIS_HOST=127.0.0.1
+   REDIS_PASSWORD=null
+   REDIS_PORT=6379
+
+   MAIL_MAILER=smtp
+   MAIL_HOST=mailpit
+   MAIL_PORT=1025
+   MAIL_USERNAME=null
+   MAIL_PASSWORD=null
+   MAIL_ENCRYPTION=null
+   MAIL_FROM_ADDRESS="hello@valtus.com"
+   MAIL_FROM_NAME="${APP_NAME}"
+
+   AWS_ACCESS_KEY_ID=
+   AWS_SECRET_ACCESS_KEY=
+   AWS_DEFAULT_REGION=us-east-1
+   AWS_BUCKET=
+   AWS_USE_PATH_STYLE_ENDPOINT=false
+
+   PUSHER_APP_ID=
+   PUSHER_APP_KEY=
+   PUSHER_APP_SECRET=
+   PUSHER_HOST=
+   PUSHER_PORT=443
+   PUSHER_SCHEME=https
+   PUSHER_APP_CLUSTER=mt1
+
+   VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+   VITE_PUSHER_HOST="${PUSHER_HOST}"
+   VITE_PUSHER_PORT="${PUSHER_PORT}"
+   VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+   VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+   ```
+
+================================================================================
+5. MIGRASI & SEEDING DATABASE
+================================================================================
+
+🔸 STEP 1: JALANKAN SEEDING
+   ```bash
+   php artisan db:seed
+   ```
+
+
+
+================================================================================
+6. SETUP STORAGE & PERMISSIONS
+================================================================================
+
+🔸 STEP 1: BUAT STORAGE LINK
+   ```bash
+   php artisan storage:link
+   ```
+
+================================================================================
+7. MENJALANKAN APLIKASI
+================================================================================
+
+🔸 STEP 1: JALANKAN LARAVEL SERVER
+   ```bash
+   php artisan serve
+   ```
+
+🔸 STEP 2: AKSES APLIKASI
+   - URL: http://localhost:8000
+   - Admin: http://localhost:8000/admin/login
+
+🔸 STEP 3: LOGIN ADMIN
+   - Email: admin@valtus.com
+   - Password: admin123
+
+🔸 STEP 4: VERIFIKASI FITUR
+   - Homepage: Tampil dengan benar
+   - Admin Panel: Bisa login dan akses menu
+   - Database: Data seeding berhasil
+
+================================================================================
+8. VERIFIKASI INSTALASI
+================================================================================
+
+🔸 CHECKLIST VERIFIKASI:
+
+✅ LARAVEL APPLICATION:
+   - [ ] php artisan --version (Laravel 10.x)
+   - [ ] composer show laravel/framework
+   - [ ] .env file exists dan configured
+
+✅ DATABASE:
+   - [ ] Database 'valtus' created
+   - [ ] All tables migrated successfully
+   - [ ] Admin user seeded (admin@valtus.com)
+
+✅ STORAGE:
+   - [ ] storage/app/public linked to public/storage
+   - [ ] Folders created: media, proofs, qris
+   - [ ] Permissions set correctly
+
+✅ WEB SERVER:
+   - [ ] Homepage loads: http://localhost:8000
+   - [ ] Admin login works: http://localhost:8000/admin/login
+   - [ ] No 500 errors in browser console
+
+✅ FEATURES:
+   - [ ] Robux pricing page accessible
+   - [ ] User search page works
+   - [ ] Admin dashboard loads
+   - [ ] File uploads work
+
+🔸 TEST COMMANDS:
+   ```bash
+   # Test database connection
+   php artisan tinker
+   >>> DB::connection()->getPdo();
+   >>> exit
+
+   # Test file permissions
+   php artisan tinker
+   >>> Storage::disk('public')->put('test.txt', 'test');
+   >>> Storage::disk('public')->exists('test.txt');
+   >>> exit
+
+   # Clear cache
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan view:clear
+   ```
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+❌ MASALAH UMUM & SOLUSI:
+
+🔸 ERROR: "Class 'PDO' not found"
+   SOLUSI:
+   ```bash
+   # Install PHP PDO extension
+   sudo apt-get install php-mysql  # Ubuntu/Debian
+   sudo yum install php-mysql      # CentOS/RHEL
+   ```
+
+🔸 ERROR: "Database connection failed"
+   SOLUSI:
+   1. Cek MySQL service running
+   2. Verifikasi credentials di .env
+   3. Test connection: mysql -u root -p
+
+🔸 ERROR: "Permission denied" pada storage
+   SOLUSI:
+   ```bash
+   chmod -R 775 storage
+   chmod -R 775 bootstrap/cache
+   ```
+
+🔸 ERROR: "Storage link already exists"
+   SOLUSI:
+   ```bash
+   php artisan storage:unlink
+   php artisan storage:link
+   ```
+
+🔸 ERROR: "Class 'Intervention\Image\ImageServiceProvider' not found"
+   SOLUSI:
+   ```bash
+   composer require intervention/image
+   ```
+
+🔸 ERROR: "Route not found"
+   SOLUSI:
+   ```bash
+   php artisan route:clear
+   php artisan config:clear
+   ```
+
+🔸 ERROR: "View not found"
+   SOLUSI:
+   ```bash
+   php artisan view:clear
+   php artisan config:clear
+   ```
+
+🔸 ERROR: "CSRF token mismatch"
+   SOLUSI:
+   1. Clear browser cache
+   2. Restart Laravel server
+   3. Check APP_KEY in .env
+
+================================================================================
+10. PRODUCTION DEPLOYMENT
+================================================================================
+
+🔸 STEP 1: ENVIRONMENT SETUP
+   ```env
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://yourdomain.com
+   ```
+
+🔸 STEP 2: OPTIMIZE APPLICATION
+   ```bash
+   composer install --optimize-autoloader --no-dev
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+🔸 STEP 3: WEB SERVER CONFIGURATION
+   
+   APACHE (.htaccess):
+   ```apache
+   <IfModule mod_rewrite.c>
+       RewriteEngine On
+       RewriteRule ^(.*)$ public/$1 [L]
+   </IfModule>
+   ```
+
+   NGINX:
+   ```nginx
+   server {
+       listen 80;
+       server_name yourdomain.com;
+       root /path/to/valtus/public;
+       
+       index index.php;
+       
+       location / {
+           try_files $uri $uri/ /index.php?$query_string;
+       }
+       
+       location ~ \.php$ {
+           fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+           fastcgi_index index.php;
+           fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+           include fastcgi_params;
+       }
+   }
+   ```
+
+🔸 STEP 4: SSL CERTIFICATE
+   ```bash
+   # Let's Encrypt
+   sudo certbot --apache -d yourdomain.com
+   ```
+
+🔸 STEP 5: CRON JOBS
+   ```bash
+   # Add to crontab
+   * * * * * cd /path/to/valtus && php artisan schedule:run >> /dev/null 2>&1
+   ```
+
+================================================================================
+📱 QUICK START COMMANDS
+================================================================================
+
+🚀 INSTALASI CEPAT (COPY-PASTE):
+
+```bash
+# 1. Clone dan install dependencies
+git clone <repository-url>
+cd valtus
+composer install
+npm install
+
+# 2. Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# 3. Edit .env file (sesuaikan database)
+# DB_DATABASE=valtus
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 4. Buat database di MySQL
+mysql -u root -p
+CREATE DATABASE valtus CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EXIT;
+
+# 5. Migrate dan seed
+php artisan migrate
+php artisan db:seed
+
+# 6. Setup storage
+php artisan storage:link
+mkdir -p public/media public/proofs public/qris
+
+# 7. Jalankan aplikasi
+php artisan serve
+```
+
+🔗 URL PENTING:
+- Homepage: http://localhost:8000
+- Admin: http://localhost:8000/admin/login
+- Login: admin@valtus.com / admin123
+
+================================================================================
+🎉 INSTALASI SELESAI!
+================================================================================
+
+Selamat! Aplikasi Valtus telah berhasil diinstall.
+
+✅ YANG SUDAH DILAKUKAN:
+- Database 'valtus' dibuat
+- Admin user dibuat (admin@valtus.com)
+- Storage folders dibuat
+- Aplikasi siap digunakan
+
+🎯 LANGKAH SELANJUTNYA:
+1. Login ke admin panel
+2. Konfigurasi settings
+3. Upload media (hero image, videos)
+4. Set Robux pricing
+5. Test pembelian
+
+📞 BANTUAN:
+- Dokumentasi: README.md
+- Admin Guide: ADMIN_GUIDE.txt
+- User Guide: USER_GUIDE.txt
+- System Flow: ALUR_SISTEM.txt
+
+Happy Coding! 🚀✨
+
+================================================================================
+                            END OF INSTALLATION GUIDE
+================================================================================
+
+Last Updated: $(date)
+Version: 1.0
+Platform: Valtus

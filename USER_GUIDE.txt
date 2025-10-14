@@ -1,0 +1,383 @@
+================================================================================
+                           VALTUS USER GUIDE
+================================================================================
+
+🎮 Selamat datang di Valtus - Platform Top Up Robux & Game Items Terpercaya!
+
+📋 DAFTAR ISI
+================================================================================
+1. PENGENALAN VALTUS
+2. CARA BELI ROBUX
+3. CARA BELI ITEM GAME LAINNYA
+4. CEK STATUS PESANAN
+5. METODE PEMBAYARAN
+6. FAQ (FREQUENTLY ASKED QUESTIONS)
+7. KONTAK & BANTUAN
+8. KEAMANAN & GARANSI
+
+================================================================================
+1. PENGENALAN VALTUS
+================================================================================
+
+🌟 TENTANG VALTUS:
+   Valtus adalah platform top-up Robux dan item game lainnya yang aman, cepat, 
+   dan terpercaya. Kami menyediakan layanan top-up dengan harga kompetitif dan 
+   proses yang mudah.
+
+✅ KEUNGGULAN VALTUS:
+   - Harga kompetitif dan transparan
+   - Proses pembelian mudah dan cepat
+   - Garansi 100% Robux masuk dan aman
+   - Customer service 24/7
+   - Pembayaran aman dan terpercaya
+   - Tidak ada biaya tersembunyi
+
+🎯 PRODUK YANG TERSEDIA:
+   - Robux (100 - 2000+ RBX)
+   - item roblox
+   - Dan masih banyak lagi!
+
+================================================================================
+2. CARA BELI ROBUX
+================================================================================
+
+📱 LANGKAH-LANGKAH PEMBELIAN ROBUX:
+
+🔸 LANGKAH 1: KUNJUNGI WEBSITE
+   1. Buka website Valtus
+   2. Klik tombol "Beli Robux" di menu utama
+   3. Atau klik "Beli Robux Sekarang" di homepage
+
+🔸 LANGKAH 2: PILIH JUMLAH ROBUX
+   
+   OPTION A - QUICK PICK (PILIH CEPAT):
+   1. Klik tab "Pilih Cepat"
+   2. Pilih paket yang tersedia (100, 200, 500, 1000, 2000 RBX)
+   3. Harga akan otomatis terhitung
+   
+   OPTION B - CUSTOM (KUSTOM):
+   1. Klik tab "Kustom"
+   2. Masukkan jumlah Robux yang diinginkan (minimal 100 RBX)
+   3. Harga akan otomatis terhitung
+
+🔸 LANGKAH 3: MASUKKAN USERNAME ROBLOX
+   1. Masukkan username Roblox Anda (bukan display name)
+   2. Klik tombol "Cek" untuk memvalidasi username
+   3. Pastikan username valid dan muncul avatar + nama
+   4. Jika username tidak ditemukan, periksa ejaan atau coba username lain
+
+🔸 LANGKAH 4: KONFIRMASI PEMBELIAN
+   1. Periksa kembali jumlah Robux dan harga
+   2. Klik "Lanjutkan Pembelian"
+   3. Sistem akan mengecek GamePass Anda
+
+🔸 LANGKAH 5: ATUR GAMEPASS (JIKA DIPERLUKAN)
+   
+   JIKA GAMEPASS TIDAK DITEMUKAN:
+   1. Sistem akan menampilkan modal instruksi
+   2. Buat GamePass baru di Roblox dengan harga yang ditentukan
+   3. Atau gunakan GamePass yang sudah ada dan ubah harganya
+   4. Klik "Sudah Mengatur Gamepass" setelah selesai
+   
+   CATATAN PENTING:
+   - GamePass harus dibuat dengan harga yang ditentukan
+   - Harga GamePass lebih tinggi dari Robux yang dibeli (untuk kompensasi pajak Roblox)
+   - Anda tetap membayar harga normal, tidak ada tambahan biaya
+
+🔸 LANGKAH 6: ISI DATA PEMBELIAN
+   1. Masukkan email untuk notifikasi
+   2. Periksa detail pesanan
+   3. Klik "Lanjutkan ke Pembayaran"
+
+🔸 LANGKAH 7: PILIH METODE PEMBAYARAN
+   
+   METODE MANUAL (QRIS):
+   1. Pilih "Manual Payment"
+   2. Scan QRIS yang tersedia
+   3. Transfer sesuai nominal yang tertera
+   4. Upload bukti transfer
+   5. Klik "Kirim Bukti Transfer"
+   
+   METODE GATEWAY (OTOMATIS):
+   1. Pilih bank/e-wallet yang tersedia
+   2. Ikuti instruksi pembayaran
+   3. Pembayaran akan otomatis terkonfirmasi
+
+🔸 LANGKAH 8: TUNGGU KONFIRMASI
+   1. Pesanan akan masuk status "Menunggu Konfirmasi"
+   2. Admin akan memverifikasi pembayaran (3-5 jam)
+   3. Setelah dikonfirmasi, status berubah menjadi "Pending"
+
+🔸 LANGKAH 9: ROBUX MASUK
+   1. Admin akan memproses pesanan
+   2. Robux akan masuk ke akun Roblox Anda
+   3. Status berubah menjadi "Completed"
+   4. Anda akan mendapat notifikasi email
+
+================================================================================
+3. CARA BELI ITEM GAME LAINNYA
+================================================================================
+
+🎮 LANGKAH-LANGKAH PEMBELIAN ITEM GAME:
+
+🔸 LANGKAH 1: PILIH PRODUK
+   1. Di homepage, scroll ke bagian "Produk Terpopuler"
+   2. Atau klik "Cobain Game Lainnya"
+   3. Pilih game dan item yang diinginkan
+
+🔸 LANGKAH 2: ISI DATA PEMBELIAN
+   1. Masukkan username game Anda
+   2. Masukkan jumlah item yang dibeli
+   3. Masukkan email untuk notifikasi
+   4. Periksa detail pesanan
+
+🔸 LANGKAH 3: PILIH METODE PEMBAYARAN
+   1. Pilih metode pembayaran yang tersedia
+   2. Ikuti instruksi pembayaran
+   3. Upload bukti transfer (jika manual)
+
+🔸 LANGKAH 4: TUNGGU PROSES
+   1. Admin akan memverifikasi pembayaran
+   2. Item akan dikirim ke akun game Anda
+   3. Proses biasanya 15 jam untuk item non-Robux
+
+================================================================================
+4. CEK STATUS PESANAN
+================================================================================
+
+📊 CARA CEK STATUS PESANAN:
+
+🔸 LANGKAH 1: AKSES HALAMAN CEK PESANAN
+   1. Klik "Cek Pesanan" di menu utama
+   2. Atau klik tombol "Cek Status" di header
+
+🔸 LANGKAH 2: MASUKKAN ORDER ID
+   1. Masukkan Order ID yang Anda terima
+   2. Order ID format: ABC123 (5-7 karakter)
+   3. Klik "Cari" untuk melihat detail
+
+🔸 LANGKAH 3: LIHAT DETAIL PESANAN
+   - Status pesanan terkini
+   - Timeline proses pesanan
+   - Detail pembayaran
+   - Data akun game
+   - Admin notes (jika ada)
+
+📋 STATUS PESANAN:
+
+⏳ MENUNGGU KONFIRMASI:
+   - Pembayaran sedang diverifikasi admin
+   - Tunggu 3-5 jam untuk konfirmasi
+   - Pastikan bukti transfer sudah diupload
+
+⏳ PENDING:
+   - Pembayaran sudah dikonfirmasi
+   - Pesanan sedang diproses
+   - Robux/item akan segera dikirim
+
+✅ COMPLETED:
+   - Robux/item sudah masuk ke akun Anda
+   - Pesanan selesai
+   - Cek akun game Anda
+
+❌ FAILED:
+   - Pembayaran ditolak
+   - Periksa bukti transfer
+   - Hubungi customer service
+
+================================================================================
+5. METODE PEMBAYARAN
+================================================================================
+
+💳 METODE PEMBAYARAN YANG TERSEDIA:
+
+🔸 MANUAL PAYMENT (QRIS):
+   - Scan QRIS dengan aplikasi bank/e-wallet
+   - Transfer sesuai nominal yang tertera
+   - Upload bukti transfer
+   - Konfirmasi manual oleh admin (3-5 jam)
+
+🔸 GATEWAY PAYMENT (OTOMATIS):
+   - Pilih bank/e-wallet yang tersedia
+   - Pembayaran otomatis terkonfirmasi
+   - Proses lebih cepat
+   - Mendukung berbagai bank dan e-wallet
+
+💰 INFORMASI PEMBAYARAN:
+   - Harga sudah final, tidak ada biaya tambahan
+   - Pembayaran harus sesuai nominal yang tertera
+   - Bukti transfer harus jelas dan terbaca
+   - Simpan bukti transfer sebagai backup
+
+================================================================================
+6. FAQ (FREQUENTLY ASKED QUESTIONS)
+================================================================================
+
+❓ PERTANYAAN UMUM:
+
+Q: Berapa lama Robux masuk ke akun saya?
+A: Setelah pembayaran dikonfirmasi, Robux akan masuk dalam 5 hari kerja.
+
+Q: Apakah ada biaya tambahan selain harga yang tertera?
+A: Tidak ada. Harga yang tertera adalah harga final yang harus Anda bayar.
+
+Q: Bagaimana jika username Roblox saya tidak ditemukan?
+A: Pastikan Anda menggunakan username (bukan display name). Username adalah nama yang Anda gunakan untuk login.
+
+Q: Apakah aman memberikan username Roblox saya?
+A: Ya, aman. Kami hanya membutuhkan username untuk mengirim Robux, bukan password.
+
+Q: Bagaimana jika GamePass saya tidak ditemukan?
+A: Ikuti instruksi yang muncul untuk membuat GamePass dengan harga yang ditentukan.
+
+Q: Apakah ada garansi jika Robux tidak masuk?
+A: Ya, kami memberikan garansi 100% Robux masuk dan aman. Jika ada masalah, hubungi customer service.
+
+Q: Bagaimana cara menghubungi customer service?
+A: Klik "Bantuan" di menu utama atau gunakan kontak yang tersedia.
+
+Q: Apakah bisa membatalkan pesanan?
+A: Pesanan bisa dibatalkan sebelum pembayaran. Setelah dibayar, tidak bisa dibatalkan.
+
+Q: Bagaimana jika salah transfer nominal?
+A: Hubungi customer service segera dengan bukti transfer yang benar.
+
+Q: Apakah ada minimal pembelian?
+A: Ya, minimal pembelian Robux adalah 100 RBX.
+
+================================================================================
+7. KONTAK & BANTUAN
+================================================================================
+
+📞 HUBUNGI KAMI:
+
+🔸 CUSTOMER SERVICE:
+   - WhatsApp: [Nomor akan ditampilkan di website]
+   - Email: [Email akan ditampilkan di website]
+   - Jam Operasional: 24/7
+
+🔸 SOCIAL MEDIA:
+   - Instagram: [Link akan ditampilkan di website]
+   - TikTok: [Link akan ditampilkan di website]
+   - Discord: [Link akan ditampilkan di website]
+   - Telegram: [Link akan ditampilkan di website]
+
+🔸 BANTUAN ONLINE:
+   - Klik "Bantuan" di menu utama
+   - Lihat FAQ di halaman ini
+   - Chat dengan customer service
+
+💬 TIPS BERKOMUNIKASI:
+   - Sertakan Order ID saat menghubungi
+   - Jelaskan masalah dengan detail
+   - Siapkan bukti pembayaran jika diperlukan
+   - Bersabar menunggu respons (maksimal 1 jam)
+
+================================================================================
+8. KEAMANAN & GARANSI
+================================================================================
+
+🔒 KEAMANAN:
+
+✅ DATA PRIBADI:
+   - Username game Anda aman dan tidak akan disalahgunakan
+   - Email hanya digunakan untuk notifikasi pesanan
+   - Tidak ada data sensitif yang disimpan
+
+✅ PEMBAYARAN:
+   - Semua transaksi tercatat dan terverifikasi
+   - Bukti transfer disimpan dengan aman
+   - Tidak ada kebocoran data pembayaran
+
+✅ WEBSITE:
+   - Website menggunakan enkripsi SSL
+   - Sistem keamanan berlapis
+   - Regular security updates
+
+🛡️ GARANSI VALTUS:
+
+✅ GARANSI 100%:
+   - Robux/item pasti masuk ke akun Anda
+   - Jika tidak masuk, uang kembali 100%
+   - Tidak ada penipuan atau scam
+
+✅ GARANSI KEAMANAN:
+   - Data Anda aman dan terlindungi
+   - Transaksi terjamin keamanannya
+   - Customer service responsif
+
+✅ GARANSI KEPUASAN:
+   - Layanan terbaik untuk customer
+   - Harga kompetitif dan transparan
+   - Proses yang mudah dan cepat
+
+================================================================================
+🎯 TIPS & TRICK
+================================================================================
+
+💡 TIPS PEMBELIAN SUKSES:
+
+1. PASTIKAN USERNAME BENAR:
+   - Gunakan username, bukan display name
+   - Periksa ejaan dengan teliti
+   - Username case-sensitive
+
+2. SEGERA UPLOAD BUKTI TRANSFER:
+   - Upload bukti transfer segera setelah transfer
+   - Pastikan bukti transfer jelas dan terbaca
+   - Simpan bukti transfer sebagai backup
+
+3. PERIKSA EMAIL NOTIFIKASI:
+   - Cek email secara berkala
+   - Periksa folder spam jika tidak ada email
+   - Simpan email konfirmasi
+
+4. HUBUNGI CS JIKA ADA MASALAH:
+   - Jangan ragu menghubungi customer service
+   - Sertakan Order ID dan detail masalah
+   - Bersabar menunggu respons
+
+5. GUNAKAN GAMEPASS YANG BENAR:
+   - Ikuti instruksi pembuatan GamePass
+   - Pastikan harga GamePass sesuai yang diminta
+   - Jangan gunakan GamePass yang sudah digunakan
+
+================================================================================
+📱 MOBILE APP (COMING SOON)
+================================================================================
+
+🚀 VALTUS MOBILE APP:
+   - Aplikasi mobile Valtus sedang dalam pengembangan
+   - Akan tersedia untuk Android dan iOS
+   - Fitur lengkap seperti website
+   - Notifikasi push untuk update pesanan
+   - Pembayaran lebih mudah
+
+📧 NOTIFIKASI UPDATE:
+   - Daftar newsletter untuk update terbaru
+   - Follow social media untuk info terbaru
+   - Cek website secara berkala
+
+================================================================================
+🎉 SELAMAT BERBELANJA!
+================================================================================
+
+Terima kasih telah memilih Valtus sebagai partner top-up Anda!
+
+Dengan Valtus, Anda mendapatkan:
+✅ Harga terbaik
+✅ Layanan terpercaya  
+✅ Proses mudah dan cepat
+✅ Garansi 100% aman
+
+Jangan ragu untuk menghubungi kami jika ada pertanyaan atau bantuan.
+
+Happy Gaming! 🎮✨
+
+================================================================================
+                            END OF USER GUIDE
+================================================================================
+
+Last Updated: $(date)
+Version: 1.0
+Website: [Valtus Website]

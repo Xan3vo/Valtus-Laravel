@@ -1,0 +1,53 @@
+Proposal Sistem Web Topup Robux
+
+nama website: Valtus
+Untuk tema warna nya shade hitam sampai putih, termasuk abu abu ataupun silver, se bagus mungkin kakak bisa usahakan Dominan gelap saja biar mata tidak sakit , tapi nanti ada section misalnya di referensi bloxpirates itu bisa beli item game kayak blox fruits dan sebagainya , nanti di halaman utama nya robux
+Kalo di kita tema konsep nya itu minimalist and silent luxury, mirip sama referensi yang spectorobux 
+
+https://spectrobux.com
+
+A.	Pendahuluan
+Sistem ini dirancang untuk mempermudah pembelian Robux melalui web dengan integrasi pembayaran otomatis menggunakan Midtrans, serta pencarian username otomatis terhubung dengan Roblox. Tujuannya adalah menghadirkan pengalaman user yang cepat, aman, dan transparan.
+
+B.	Alur Sistem (Umum)
+1.	Pencarian Username
+- User cukup memasukkan username Roblox.
+- Sistem langsung terhubung ke Roblox untuk memvalidasi dan menampilkan data akun.
+2.	Pilih Jumlah Robux
+- User memilih jumlah Robux (minimal 50).
+- Admin dapat mengatur harga dan paket cepat (100, 200, 500 Robux).
+3.	Atur GamePass
+- User diarahkan untuk membuat GamePass sesuai instruksi.
+- Sistem mengecek apakah GamePass tersedia.
+- Jika tersedia, lanjut ke pembayaran.
+4.	Pembayaran via Midtrans
+- User membayar via QRIS, VA, GoPay, dll.
+- Status pembayaran diperbarui otomatis.
+5.	Status Pembayaran & Pesanan
+- Status Pembayaran (Midtrans): Pending → Completed / Gagal.
+- Status Pesanan (Internal):
+   * Pending jika pemesan sudah menyelesaikan pembayaran.
+   * On Progress jika admin sudah mulai membeli gamepass pemesan.
+   * Otomatis Completed setelah 5 hari.
+C.	Fitur Utama
+1.	Fitur User:
+- Cari username otomatis.
+- Pilih jumlah Robux custom atau paket.
+- Instruksi pembuatan GamePass.
+- Pembayaran otomatis Midtrans.
+- Cek status pesanan jelas.
+2.	Fitur Admin:
+- Dashboard transaksi & pesanan.
+- Cari pesanan berdasarkan username.
+- Atur harga, pajak, minimal pembelian.
+- Laporan transaksi detail.
+- Hanya pesanan dengan pembayaran Completed yang masuk ke daftar pesanan.
+
+D.	Keunggulan Sistem
+- Otomatis penuh: username terhubung Roblox, pembayaran Midtrans, status pesanan mengikuti pembayaran.
+- Transparan: status jelas & estimasi selesai.
+- Fleksibel: mendukung custom & paket cepat.
+- Aman: pembayaran langsung masuk rekening klien.
+
+E.	Kesimpulan
+Sistem ini menghadirkan integrasi Roblox dan Midtrans dengan alur sederhana: hanya pembayaran Completed yang diproses menjadi pending lalu ketika admin membeli gamepass pemesan, admin harus mengubah status manjadi On Progress, lalu otomatis Completed setelah 5 hari. Proses topup Robux menjadi cepat, aman, dan transparan.
