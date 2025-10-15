@@ -93,9 +93,9 @@ class RobloxController extends Controller
             return response()->json(['ok' => false, 'error' => 'BAD_PARAMS'], 400);
         }
 
-        // Read tax from settings
-        $taxRate = (float) \App\Models\Setting::getValue('gamepass_tax_rate', '30');
-        $requiredPrice = (int) ceil($amount * (1 + $taxRate / 100));
+        // Roblox potong 30%, jadi customer dapat 70% dari GamePass
+        // Rumus: GamePass = (Robux yang mau didapatkan) × 100/70
+        $requiredPrice = (int) ceil($amount * (100 / 70));
 
         // If specific assetId provided, verify it directly first
         if ($specificAssetId > 0) {

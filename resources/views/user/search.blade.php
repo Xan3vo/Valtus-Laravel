@@ -347,8 +347,8 @@
                                 <button class="text-white/60 hover:text-white" id="modalClose">✕</button>
                             </div>
                                 <div class="mt-4 text-center">
-                                    <div class="text-2xl font-semibold text-white">Buat Gamepass Seharga <span class="text-emerald-400">R$${(gj.requiredPrice || Math.ceil(amt * (1 + {{ (int)($gamepassTaxRate ?? 30) }} / 100)))}</span></div>
-                                    <p class="mt-2 text-white/70">Buat gamepass di Roblox dengan harga di atas agar setelah dipotong pajak Roblox, Anda mendapat <span class="text-emerald-400">${amt} Robux</span> yang pas.</p>
+                                    <div class="text-2xl font-semibold text-white">Buat Gamepass Seharga <span class="text-emerald-400">R$${(gj.requiredPrice || Math.ceil(amt * (100 / 70)))}</span></div>
+                                    <p class="mt-2 text-white/70">Buat gamepass di Roblox dengan harga di atas agar setelah Roblox potong 30%, Anda mendapat <span class="text-emerald-400">${amt} Robux</span> yang pas.</p>
                                     <p class="mt-1 text-white/60 text-sm">Harga yang Anda bayar tetap sama: <span class="text-white font-medium">Rp ${new Intl.NumberFormat('id-ID').format({{ $robuxPricePer100 }} * (amt/100))}</span></p>
                                 <div class="mt-5 aspect-video rounded-lg overflow-hidden border border-white/10">
                                     @php

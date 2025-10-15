@@ -220,7 +220,7 @@
 🔸 CHECKLIST VERIFIKASI:
 
 ✅ LARAVEL APPLICATION:
-   - [ ] php artisan --version (Laravel 10.x)
+   - [ ] php artisan --version (Laravel 12.x)
    - [ ] composer show laravel/framework
    - [ ] .env file exists dan configured
 

@@ -120,7 +120,7 @@
                         class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
                         required 
                     />
-                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Pajak yang diambil Roblox dari GamePass</p>
+                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Roblox potong 30% dari GamePass (hanya untuk GamePass, bukan harga customer)</p>
                 </label>
 
                 <label class="block">
@@ -154,7 +154,7 @@
                         <span class="text-blue-300 font-medium">GamePass yang harus dibuat:</span>
                         <span class="text-blue-300 font-bold" id="preview-gamepass-total">130 Robux</span>
                     </div>
-                    <p class="text-xs text-white/50 mt-2">Customer akan dapat 100 Robux bersih setelah Roblox ambil pajak</p>
+                    <p class="text-xs text-white/50 mt-2">Customer akan dapat 100 Robux bersih setelah Roblox potong 30%</p>
                 </div>
             </div>
         </div>
@@ -203,8 +203,10 @@
             const pricePerUnit = pricePer100 / 100;
             const pricePer1000 = pricePer100 * 10;
             
-            const gamepassTaxAmount = Math.ceil(customerRobux * (gamepassTax / 100));
-            const gamepassTotal = customerRobux + gamepassTaxAmount;
+            // Roblox potong 30%, jadi customer dapat 70% dari GamePass
+            // Rumus: GamePass = (Robux yang mau didapatkan) × 100/70
+            const gamepassTotal = Math.ceil(customerRobux * (100 / 70));
+            const gamepassTaxAmount = gamepassTotal - customerRobux;
             
             document.getElementById('preview-per-unit').textContent = 'Rp ' + pricePerUnit.toLocaleString('id-ID');
             document.getElementById('preview-per-100').textContent = 'Rp ' + pricePer100.toLocaleString('id-ID');
