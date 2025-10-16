@@ -23,17 +23,11 @@
         </nav>
         <!-- Desktop Actions -->
         <div class="hidden md:flex items-center gap-4">
-            <a href="{{ route('user.status') }}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all duration-200 text-sm font-medium">
+            <a href="{{ route('user.status') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all duration-200 text-sm font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 Cek Status
-            </a>
-            <a href="{{ route('admin.login') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 text-sm font-medium">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                </svg>
-                Admin
             </a>
         </div>
         
@@ -52,14 +46,6 @@
             <a href="#topup" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beli Robux</a>
             <a href="{{ route('user.status') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Cek Pesanan</a>
             <a href="#" onclick="showHelpModal()" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
-            <div class="pt-4 border-t border-white/10">
-                <a href="{{ route('admin.login') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                    </svg>
-                    Admin
-                </a>
-            </div>
         </div>
     </div>
 </header>
@@ -72,7 +58,7 @@
             <div class="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
                 <div class="order-2 md:order-1">
                     <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
-                        Valtus: Andalan Robux Murah Asli dari Developer
+                        Andalan Robux Murah Asli dari Developer
                         <img src="/assets/images/verif.png" alt="Verified" class="inline-block h-6 w-6 sm:h-8 sm:w-8 ml-2 align-middle">
                     </h1>
                     <p class="mt-4 text-gray-200 max-w-xl text-sm sm:text-base">
@@ -121,6 +107,51 @@
                     <div class="mt-1 text-lg sm:text-xl md:text-2xl font-semibold">24/7 Live Support</div>
                 </div>
             </div>
+
+            <!-- Live Feed Section -->
+            @if($recentActivities->count() > 0)
+            <div class="mt-8 sm:mt-10">
+                <div class="rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5">
+                     <div class="flex items-center gap-2 mb-4">
+                         <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" id="liveIndicator"></div>
+                         <h3 class="text-white/90 font-medium text-sm sm:text-base">Aktivitas Terbaru</h3>
+                         <div class="text-xs text-white/50" id="lastUpdate">Auto-refresh setiap 30s</div>
+                     </div>
+                    <div class="space-y-3" id="liveFeed">
+                        @foreach($recentActivities as $activity)
+                        <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 activity-item" data-activity-id="{{ $activity->id }}" data-username="{{ $activity->username }}">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 flex items-center justify-center flex-shrink-0" id="avatar-{{ $activity->id }}">
+                                <span class="text-white text-xs font-bold">{{ strtoupper(substr($activity->username, 0, 1)) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-white/90 text-sm">
+                                    <span class="font-medium">{{ $activity->masked_username }}</span>
+                                    <span class="text-white/60">berhasil membeli</span>
+                                    @if($activity->game_type === 'Robux')
+                                        <span class="font-semibold text-emerald-400">{{ $activity->formatted_amount }} Robux</span>
+                                    @else
+                                        <span class="font-semibold text-emerald-400">{{ $activity->formatted_amount }} {{ $activity->product_name ?: $activity->game_type }}</span>
+                                    @endif
+                                </div>
+                                <div class="text-white/50 text-xs">
+                                    {{ $activity->processed_at->diffForHumans() }}
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                @if($activity->game_type === 'Robux')
+                                    <img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">
+                                @else
+                                    <div class="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">P</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </section>
 
@@ -136,81 +167,100 @@
                 <div class="rounded-xl border border-white/20 p-5 bg-white/10">
                     <div class="flex items-center justify-between">
                         <div class="font-medium">Stok Robux</div>
-                        <span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live</span>
+                        @if($stockStatus['is_low'])
+                            <span class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/30">Low Stock</span>
+                        @elseif($stockStatus['status'] === 'high')
+                            <span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">High Stock</span>
+                        @else
+                            <span class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Normal</span>
+                        @endif
                     </div>
                     <div class="mt-3 text-2xl font-semibold flex items-center gap-2">
-                        <span id="stockRbx">92.0k+</span>
+                        <span id="stockRbx">{{ number_format($robuxStock ?? 100000, 0, ',', '.') }}</span>
                         <span id="stockDelta" class="text-xs px-1.5 py-0.5 rounded hidden"></span>
                     </div>
+                    @if($stockStatus['is_low'])
+                        <div class="mt-2 text-xs text-red-300">
+                            ⚠️ Stok rendah! Segera isi ulang.
+                        </div>
+                    @endif
                     <script>
+                        // Real stock display - no fake animation
                         (function(){
                             const el = document.getElementById('stockRbx');
                             const deltaEl = document.getElementById('stockDelta');
-                            function parseNum(text){
-                                const s = String(text).toLowerCase();
-                                if (s.includes('k')) {
-                                    const f = parseFloat(s);
-                                    return isNaN(f) ? 92000 : Math.round(f * 1000);
-                                }
-                                const n = parseInt(s.replace(/[^0-9]/g,''),10);
-                                return isNaN(n)?92000:n; // default 92k
-                            }
+                            
                             function fmtRbx(n){
                                 if(n >= 1000){ return (Math.round(n/100)/10).toFixed(1) + 'k+'; }
                                 return n.toString();
                             }
-                            let current = Math.max(60000, parseNum(el.textContent));
-
-                            function animateTo(target){
-                                const start = performance.now();
-                                const from = current;
-                                const to = Math.max(60000, target);
-                                const duration = 1200; // ms
-                                function easeOutQuad(t){ return 1 - (1 - t) * (1 - t); }
-                                function frame(now){
-                                    const p = Math.min(1, (now - start) / duration);
-                                    const value = Math.round(from + (to - from) * easeOutQuad(p));
-                                    el.textContent = fmtRbx(value);
-                                    if (p < 1) {
-                                        requestAnimationFrame(frame);
-                                    } else {
-                                        const diff = to - from;
-                                        if (diff !== 0){
-                                            deltaEl.textContent = (diff > 0 ? '▲ ' : '▼ ') + Math.abs(diff).toLocaleString('id-ID');
-                                            deltaEl.className = 'text-xs px-1.5 py-0.5 rounded ' + (diff>0 ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/15 text-red-300 border border-red-500/30');
-                                            deltaEl.style.opacity = '1';
-                                            deltaEl.classList.remove('hidden');
-                                            try { el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}], {duration:500}); } catch(e) {}
-                                            setTimeout(()=>{ deltaEl.style.transition='opacity 600ms'; deltaEl.style.opacity='0'; }, 1200);
-                                            setTimeout(()=>{ deltaEl.classList.add('hidden'); deltaEl.style.transition=''; }, 1900);
+                            
+                            // Set initial stock from database
+                            el.textContent = fmtRbx({{ $robuxStock ?? 100000 }});
+                            
+                            // Function to update stock when there's a real change
+                            window.updateStockDisplay = function(newStock, change) {
+                                // Use the actual change value passed from the API
+                                const actualChange = change || (newStock - lastStock);
+                                console.log('🎯 updateStockDisplay called:', {
+                                    newStock: newStock,
+                                    change: change,
+                                    actualChange: actualChange,
+                                    lastStock: lastStock,
+                                    expectedFinal: lastStock + actualChange
+                                });
+                                
+                                if (actualChange !== 0) {
+                                    // Store the starting value for animation
+                                    const startValue = lastStock;
+                                    // Animate to new value
+                                    const start = performance.now();
+                                    const duration = 800;
+                                    
+                                    function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+                                    
+                                    function frame(now) {
+                                        const p = Math.min(1, (now - start) / duration);
+                                        const value = Math.round(startValue + (actualChange * easeOutQuad(p)));
+                                        el.textContent = fmtRbx(value);
+                                        
+                                        if (p < 1) {
+                                            requestAnimationFrame(frame);
+                                        } else {
+                                            // Set final value to exact newStock
+                                            el.textContent = fmtRbx(newStock);
+                                            // Show delta indicator with actual change
+                                            if (Math.abs(actualChange) > 0) {
+                                                deltaEl.textContent = (actualChange > 0 ? '▲ ' : '▼ ') + Math.abs(actualChange).toLocaleString('id-ID');
+                                                deltaEl.className = 'text-xs px-1.5 py-0.5 rounded ' + (actualChange > 0 ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/15 text-red-300 border border-red-500/30');
+                                                deltaEl.style.opacity = '1';
+                                                deltaEl.classList.remove('hidden');
+                                                
+                                                // Scale animation
+                                                try { 
+                                                    el.animate([
+                                                        {transform:'scale(1)'},
+                                                        {transform:'scale(1.05)'},
+                                                        {transform:'scale(1)'}
+                                                    ], {duration: 400}); 
+                                                } catch(e) {}
+                                                
+                                                // Hide delta after 2 seconds
+                                                setTimeout(() => { 
+                                                    deltaEl.style.transition = 'opacity 600ms'; 
+                                                    deltaEl.style.opacity = '0'; 
+                                                }, 2000);
+                                                setTimeout(() => { 
+                                                    deltaEl.classList.add('hidden'); 
+                                                    deltaEl.style.transition = ''; 
+                                                }, 2600);
+                                            }
                                         }
-                                        current = to;
                                     }
+                                    
+                                    requestAnimationFrame(frame);
                                 }
-                                requestAnimationFrame(frame);
-                            }
-
-                            let cycle = 0; // 0..3 (3 turun, 1 naik)
-                            let downSum = 0;
-                            function rand(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
-                            function tick(){
-                                let delta = 0;
-                                if (cycle < 3) {
-                                    // turunkan stok 3 kali berturut-turut
-                                    delta = -rand(400, 1000);
-                                    downSum += Math.abs(delta);
-                                    cycle += 1;
-                                } else {
-                                    // naikkan sekali dengan total turunan + 100
-                                    delta = downSum + 100;
-                                    downSum = 0;
-                                    cycle = 0;
-                                }
-                                animateTo(current + delta);
-                            }
-                            setInterval(tick, 15000);
-                            setTimeout(tick, 300);
-                            if (document.visibilityState === 'visible') tick();
+                            };
                         })();
                     </script>
                     <a href="#" onclick="selectAmount(0)" class="mt-5 inline-flex items-center gap-2 rounded-md px-4 py-2 bg-white text-black hover:bg-gray-200 transition">
@@ -222,23 +272,31 @@
                 <div class="rounded-xl border border-white/20 p-5 md:col-span-2 bg-white/5">
                     <div class="font-medium mb-3">Pilih Cepat</div>
                     <div class="relative">
-                        <button type="button" class="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20" onclick="document.getElementById('quickScroll').scrollBy({left:-400,behavior:'smooth'})" aria-label="Scroll left">‹</button>
+                        <button type="button" id="scrollLeftBtn" class="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group" onclick="scrollQuickSelect('left')" aria-label="Scroll left">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
                         <div id="quickScroll" class="overflow-x-auto no-scrollbar scroll-smooth px-1 grid grid-flow-col grid-rows-2 auto-cols-max gap-3">
                             @php
                                 $quick = [100, 500, 1000, 2000, 5000, 10000, 25000, 50000];
                             @endphp
                             @foreach($quick as $pkg)
                                 @php $pkgPrice = ($robuxPricePer100 ?? 10000) * ($pkg / 100); @endphp
-                                <a href="#" onclick="selectAmount({{ $pkg }})" class="inline-flex shrink-0 flex-col items-center text-center rounded-md border border-white/15 px-4 py-3 text-sm hover:border-white/30 hover:bg-white/5 transition mx-1 min-w-[140px]">
+                                <a href="#" onclick="selectAmount({{ $pkg }})" class="inline-flex shrink-0 flex-col items-center text-center rounded-md border border-white/15 px-4 py-3 text-sm hover:border-white/30 hover:bg-white/5 transition mx-1 min-w-[140px] group">
                                     <div class="flex items-center gap-2">
-                                        <img src="/assets/images/robux.png" class="h-4 w-4 opacity-80" alt="Robux">
+                                        <img src="/assets/images/robux.png" class="h-4 w-4 opacity-80 group-hover:opacity-100 transition-opacity duration-200" alt="Robux">
                                         <span class="font-medium">{{ $pkg }} RBX</span>
                                     </div>
-                                    <div class="text-white/90 mt-1">Rp {{ number_format($pkgPrice, 0, ',', '.') }}</div>
+                                    <div class="text-white/90 mt-1 group-hover:text-white transition-colors duration-200">Rp {{ number_format($pkgPrice, 0, ',', '.') }}</div>
                                 </a>
                             @endforeach
                         </div>
-                        <button type="button" class="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20" onclick="document.getElementById('quickScroll').scrollBy({left:400,behavior:'smooth'})" aria-label="Scroll right">›</button>
+                        <button type="button" id="scrollRightBtn" class="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group" onclick="scrollQuickSelect('right')" aria-label="Scroll right">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
                     </div>
                     <style>
                         .no-scrollbar::-webkit-scrollbar{display:none}
@@ -499,6 +557,280 @@
             }
         });
 
+        // Quick select scroll functionality
+        function scrollQuickSelect(direction) {
+            const scrollContainer = document.getElementById('quickScroll');
+            // Responsive scroll amount: smaller on mobile, larger on desktop
+            const isMobile = window.innerWidth < 640; // sm breakpoint
+            const scrollAmount = isMobile ? 200 : 300;
+            
+            if (direction === 'left') {
+                scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+            
+            // Update button visibility after scroll
+            setTimeout(updateScrollButtons, 100);
+        }
+        
+        function updateScrollButtons() {
+            const scrollContainer = document.getElementById('quickScroll');
+            const leftBtn = document.getElementById('scrollLeftBtn');
+            const rightBtn = document.getElementById('scrollRightBtn');
+            
+            if (!scrollContainer || !leftBtn || !rightBtn) return;
+            
+            const scrollLeft = scrollContainer.scrollLeft;
+            const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+            
+            // Show/hide left button
+            if (scrollLeft <= 0) {
+                leftBtn.style.opacity = '0.5';
+                leftBtn.style.pointerEvents = 'none';
+            } else {
+                leftBtn.style.opacity = '1';
+                leftBtn.style.pointerEvents = 'auto';
+            }
+            
+            // Show/hide right button
+            if (scrollLeft >= maxScroll - 10) { // 10px tolerance
+                rightBtn.style.opacity = '0.5';
+                rightBtn.style.pointerEvents = 'none';
+            } else {
+                rightBtn.style.opacity = '1';
+                rightBtn.style.pointerEvents = 'auto';
+            }
+        }
+
+         // Live feed auto-refresh (activities only)
+         function refreshLiveFeed() {
+             console.log('🔄 Refreshing live feed...');
+             updateLastRefreshTime();
+             
+             fetch('/api/recent-activities')
+                 .then(response => response.json())
+                 .then(data => {
+                     console.log('✅ Activities API response received:', data);
+                     
+                     // Update activities (max 3)
+                     if (data.activities && data.activities.length > 0) {
+                         console.log('📊 Updating activities:', data.activities.length);
+                         const liveFeed = document.getElementById('liveFeed');
+                         if (liveFeed) {
+                             // Always replace with latest 3 activities
+                             liveFeed.innerHTML = '';
+                             
+                             // Add all activities (max 3)
+                             data.activities.forEach(activity => {
+                                 console.log('👤 Creating activity element for:', activity.username);
+                                 const activityElement = createActivityElement(activity);
+                                 liveFeed.appendChild(activityElement);
+                                 
+                                 // Load avatar for this activity
+                                 loadAvatarForActivity(activity);
+                                 
+                                 // Add animation
+                                 activityElement.style.opacity = '0';
+                                 activityElement.style.transform = 'translateY(-10px)';
+                                 setTimeout(() => {
+                                     activityElement.style.transition = 'all 0.3s ease';
+                                     activityElement.style.opacity = '1';
+                                     activityElement.style.transform = 'translateY(0)';
+                                 }, 100);
+                             });
+                         }
+                     }
+                 })
+                 .catch(error => {
+                     console.log('❌ Live feed refresh failed:', error);
+                     updateLastRefreshTime('error');
+                 });
+         }
+
+         // Stock refresh function (separate)
+         function refreshStock() {
+             console.log('💰 Refreshing stock...');
+             fetch('/api/current-stock')
+                 .then(response => response.json())
+                 .then(data => {
+                     console.log('✅ Stock API response received:', data);
+                     updateStockFromData(data);
+                 })
+                 .catch(error => {
+                     console.log('❌ Stock refresh failed:', error);
+                 });
+         }
+
+         // Global variable for tracking stock
+         let lastStock = {{ $robuxStock ?? 100000 }};
+
+         // Update last refresh time display
+         function updateLastRefreshTime(status = 'success') {
+             const lastUpdateEl = document.getElementById('lastUpdate');
+             const indicatorEl = document.getElementById('liveIndicator');
+             
+             if (lastUpdateEl) {
+                 const now = new Date();
+                 const timeStr = now.toLocaleTimeString('id-ID', { 
+                     hour: '2-digit', 
+                     minute: '2-digit', 
+                     second: '2-digit' 
+                 });
+                 
+                 if (status === 'error') {
+                     lastUpdateEl.textContent = `Terakhir update: ${timeStr} (Error)`;
+                     lastUpdateEl.className = 'text-xs text-red-400';
+                 } else {
+                     lastUpdateEl.textContent = `Terakhir update: ${timeStr}`;
+                     lastUpdateEl.className = 'text-xs text-white/50';
+                 }
+             }
+             
+             if (indicatorEl) {
+                 if (status === 'error') {
+                     indicatorEl.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
+                 } else {
+                     indicatorEl.className = 'w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
+                 }
+             }
+         }
+
+         // Update stock from API data
+         function updateStockFromData(stockData) {
+             console.log('📊 Stock data received:', stockData);
+             console.log('📊 Current lastStock:', lastStock);
+             
+             if (stockData.current_stock !== lastStock) {
+                 const change = stockData.current_stock - lastStock;
+                 console.log('📊 Stock changed:', lastStock, '->', stockData.current_stock, 'change:', change);
+                 console.log('📊 Validation: lastStock + change =', lastStock + change, 'should equal newStock:', stockData.current_stock);
+                 
+                 // Update stock display with animation (pass the actual change)
+                 if (window.updateStockDisplay) {
+                     window.updateStockDisplay(stockData.current_stock, change);
+                 }
+                 
+                 // Update lastStock after animation starts
+                 lastStock = stockData.current_stock;
+                 
+                 // Update stock status badges
+                 updateStockStatus(stockData);
+             } else {
+                 console.log('📊 No stock change detected');
+             }
+         }
+
+         // Update stock status badges
+         function updateStockStatus(data) {
+             const stockContainer = document.querySelector('.rounded-xl.border.border-white\\/20.p-5.bg-white\\/10');
+             if (stockContainer) {
+                 const statusBadge = stockContainer.querySelector('.text-xs.px-2.py-1.rounded');
+                 const lowStockWarning = stockContainer.querySelector('.mt-2.text-xs.text-red-300');
+                 
+                 // Update status badge
+                 if (statusBadge) {
+                     statusBadge.className = 'text-xs px-2 py-1 rounded';
+                     if (data.is_low) {
+                         statusBadge.classList.add('bg-red-500/20', 'text-red-300', 'border', 'border-red-500/30');
+                         statusBadge.textContent = 'Low Stock';
+                     } else if (data.status === 'high') {
+                         statusBadge.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border', 'border-emerald-500/30');
+                         statusBadge.textContent = 'High Stock';
+                     } else {
+                         statusBadge.classList.add('bg-blue-500/20', 'text-blue-300', 'border', 'border-blue-500/30');
+                         statusBadge.textContent = 'Normal';
+                     }
+                 }
+                 
+                 // Update low stock warning
+                 if (lowStockWarning) {
+                     if (data.is_low) {
+                         lowStockWarning.classList.remove('hidden');
+                     } else {
+                         lowStockWarning.classList.add('hidden');
+                     }
+                 }
+             }
+         }
+
+        // Load avatar for specific activity (menggunakan API lama yang sudah bekerja)
+        function loadAvatarForActivity(activity) {
+            const avatarContainer = document.getElementById(`avatar-${activity.id}`);
+            if (!avatarContainer) return;
+
+            // Use full username for API call (not masked)
+            const fullUsername = activity.username; // Use original username, not masked
+            
+            console.log('🖼️ Loading avatar for:', fullUsername);
+            
+            // Fetch avatar dari API lama yang sudah bekerja
+            fetch(`/api/roblox/username?username=${encodeURIComponent(fullUsername)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('🖼️ Avatar response for', fullUsername, ':', data);
+                    
+                    if (data && data.ok && data.found && data.avatar) {
+                        // Replace initials with actual avatar
+                        avatarContainer.innerHTML = `<img src="${data.avatar}" alt="${fullUsername}" class="w-8 h-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 flex items-center justify-center flex-shrink-0 hidden"><span class="text-white text-xs font-bold">${fullUsername.charAt(0).toUpperCase()}</span></div>`;
+                        console.log('✅ Avatar loaded for', fullUsername);
+                    } else {
+                        console.log('❌ No avatar found for', fullUsername);
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Failed to load avatar for', fullUsername, error);
+                });
+        }
+
+        function createActivityElement(activity) {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 activity-item';
+            div.setAttribute('data-activity-id', activity.id);
+            div.setAttribute('data-username', activity.username); // Add full username
+            
+            // Create avatar with initials first, will be replaced by actual avatar
+            const avatarHtml = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 flex items-center justify-center flex-shrink-0" id="avatar-${activity.id}">
+                    <span class="text-white text-xs font-bold">${activity.username.charAt(0).toUpperCase()}</span>
+                </div>
+            `;
+            
+            // Determine product info
+            let productText = '';
+            let productIcon = '';
+            
+            if (activity.product_info) {
+                productText = activity.product_info.amount;
+                productIcon = activity.product_info.type === 'robux' 
+                    ? '<img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">'
+                    : '<div class="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="text-white text-xs font-bold">P</span></div>';
+            } else {
+                // Fallback for old data
+                productText = activity.formatted_amount + ' Robux';
+                productIcon = '<img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">';
+            }
+            
+            div.innerHTML = `
+                ${avatarHtml}
+                <div class="flex-1 min-w-0">
+                    <div class="text-white/90 text-sm">
+                        <span class="font-medium">${activity.masked_username}</span>
+                        <span class="text-white/60">berhasil membeli</span>
+                        <span class="font-semibold text-emerald-400">${productText}</span>
+                    </div>
+                    <div class="text-white/50 text-xs">
+                        ${activity.time_ago}
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    ${productIcon}
+                </div>
+            `;
+            
+            return div;
+        }
+
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -515,6 +847,88 @@
                         mobileMenu.classList.add('hidden');
                     }
                 });
+            }
+            
+            // Initialize scroll buttons
+            const scrollContainer = document.getElementById('quickScroll');
+            if (scrollContainer) {
+                // Update buttons on scroll
+                scrollContainer.addEventListener('scroll', updateScrollButtons);
+                
+                // Initial button state
+                updateScrollButtons();
+            }
+            
+            // Initialize live feed refresh
+            const liveFeed = document.getElementById('liveFeed');
+            if (liveFeed) {
+                // Load avatars for existing activities (only once on page load)
+                const existingActivities = document.querySelectorAll('.activity-item');
+                existingActivities.forEach(activityElement => {
+                    const activityId = activityElement.getAttribute('data-activity-id');
+                    // Get username from data attribute instead of parsing from display text
+                    const username = activityElement.getAttribute('data-username');
+                    if (activityId && username) {
+                        loadAvatarForActivity({ id: activityId, username: username });
+                    }
+                });
+                
+                 // Only refresh if page is visible and user is active
+                 let activitiesInterval;
+                 let stockInterval;
+                 let isPageVisible = true;
+                 let lastActivity = null;
+                 
+                 function startRefresh() {
+                     // Clear existing intervals
+                     if (activitiesInterval) clearInterval(activitiesInterval);
+                     if (stockInterval) clearInterval(stockInterval);
+                     
+                     // Refresh activities every 30 seconds (lebih responsif)
+                     activitiesInterval = setInterval(() => {
+                         if (isPageVisible && !document.hidden) {
+                             refreshLiveFeed();
+                         }
+                     }, 30000);
+                     
+                     // Refresh stock every 15 seconds (lebih responsif)
+                     stockInterval = setInterval(() => {
+                         if (isPageVisible && !document.hidden) {
+                             refreshStock();
+                         }
+                     }, 15000);
+                 }
+                 
+                 function stopRefresh() {
+                     if (activitiesInterval) {
+                         clearInterval(activitiesInterval);
+                         activitiesInterval = null;
+                     }
+                     if (stockInterval) {
+                         clearInterval(stockInterval);
+                         stockInterval = null;
+                     }
+                 }
+                
+                
+                // Start refresh when page becomes visible
+                document.addEventListener('visibilitychange', () => {
+                    isPageVisible = !document.hidden;
+                    if (isPageVisible) {
+                        startRefresh();
+                    } else {
+                        stopRefresh();
+                    }
+                });
+                
+                 // Start initial refresh
+                 console.log('Starting refresh intervals...');
+                 startRefresh();
+                 
+                 // Test initial calls
+                 console.log('Testing initial API calls...');
+                 refreshLiveFeed();
+                 refreshStock();
             }
         });
     </script>

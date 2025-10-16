@@ -18,31 +18,19 @@ class RobloxController extends Controller
             return response()->json(['ok' => false, 'error' => 'EMPTY_USERNAME'], 400);
         }
 
-        // Try GET (as requested), then POST fallback (official)
-        $getUrl = 'https://users.roblox.com/v1/usernames/users?username=' . urlencode($username);
-        $resp = Http::timeout(8)->get($getUrl);
+        // Langsung gunakan POST (lebih reliable dan cepat)
+        $postUrl = 'https://users.roblox.com/v1/usernames/users';
+        $resp = Http::timeout(3)->post($postUrl, [
+            'usernames' => [$username],
+            'excludeBannedUsers' => true,
+        ]);
         $data = null;
         if ($resp->successful()) {
             $json = $resp->json();
             $data = $json['data'][0] ?? null;
-            Log::info('roblox.username.get', ['username' => $username, 'ok' => true, 'found' => (bool)$data]);
+            Log::info('roblox.username.post', ['username' => $username, 'ok' => true, 'found' => (bool)$data]);
         } else {
-            Log::warning('roblox.username.get_failed', ['username' => $username, 'status' => $resp->status()]);
-        }
-
-        if (!$data) {
-            $postUrl = 'https://users.roblox.com/v1/usernames/users';
-            $resp = Http::timeout(8)->post($postUrl, [
-                'usernames' => [$username],
-                'excludeBannedUsers' => true,
-            ]);
-            if ($resp->successful()) {
-                $json = $resp->json();
-                $data = $json['data'][0] ?? null;
-                Log::info('roblox.username.post', ['username' => $username, 'ok' => true, 'found' => (bool)$data]);
-            } else {
-                Log::warning('roblox.username.post_failed', ['username' => $username, 'status' => $resp->status()]);
-            }
+            Log::warning('roblox.username.post_failed', ['username' => $username, 'status' => $resp->status()]);
         }
 
         if (!$data) {
@@ -54,10 +42,10 @@ class RobloxController extends Controller
         $name = $data['name'] ?? $username;
         $display = $data['displayName'] ?? $name;
 
-        // Avatar headshot thumbnail
+        // Avatar headshot thumbnail (optimized timeout)
         $avatarUrl = null;
         if ($userId) {
-            $thumb = Http::timeout(8)->get('https://thumbnails.roblox.com/v1/users/avatar-headshot', [
+            $thumb = Http::timeout(3)->get('https://thumbnails.roblox.com/v1/users/avatar-headshot', [
                 'userIds' => $userId,
                 'size' => '150x150',
                 'format' => 'Png',

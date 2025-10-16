@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\GoogleSheetsService;
+use App\Services\RobuxStockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -83,6 +84,13 @@ class PaymentController extends Controller
         ]);
 
         if ($request->action === 'approve') {
+            // Check if it's a Robux order and reduce stock
+            if ($order->game_type === 'Robux' && $order->amount) {
+                if (!RobuxStockService::reduceStock((int) $order->amount)) {
+                    return redirect()->back()->with('error', 'Insufficient Robux stock! Current stock: ' . number_format(RobuxStockService::getCurrentStock(), 0, ',', '.'));
+                }
+            }
+            
             $order->update([
                 'payment_status' => 'Completed',
                 'order_status' => 'pending',

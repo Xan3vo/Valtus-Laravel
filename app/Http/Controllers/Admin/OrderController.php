@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Activity;
+use App\Services\RobuxStockService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -88,6 +90,13 @@ class OrderController extends Controller
 
         // If setting status to completed, set completed_at based on game type
         if ($request->order_status === 'completed') {
+            // Check if it's a Robux order and reduce stock
+            if ($order->game_type === 'Robux' && $order->amount) {
+                if (!RobuxStockService::reduceStock((int) $order->amount)) {
+                    return redirect()->back()->with('error', 'Insufficient Robux stock! Current stock: ' . number_format(RobuxStockService::getCurrentStock(), 0, ',', '.'));
+                }
+            }
+            
             if ($order->game_type === 'Robux') {
                 // For Robux orders, use auto_complete_days setting
                 $autoCompleteDays = \App\Models\Setting::getIntValue('auto_complete_days', 5);
@@ -99,6 +108,11 @@ class OrderController extends Controller
         }
 
         $order->update($updateData);
+
+        // Create activity record when order is completed
+        if ($request->order_status === 'completed') {
+            Activity::createFromOrder($order);
+        }
 
         $message = $request->order_status === 'completed' 
             ? ($order->game_type === 'Robux' 

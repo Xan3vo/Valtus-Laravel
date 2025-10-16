@@ -57,6 +57,22 @@
                 <div class="text-white/60 text-xs sm:text-sm">Minimal Order</div>
                 <div class="text-white text-sm sm:text-lg font-bold">Rp {{ number_format($settings['minimal_purchase'], 0, ',', '.') }}</div>
             </div>
+            <div class="p-3 sm:p-4 bg-white/10 rounded-lg border border-white/20">
+                <div class="text-white/60 text-xs sm:text-sm">Stok Robux</div>
+                <div class="text-white text-sm sm:text-lg font-bold">{{ number_format($settings['robux_stock'] ?? 0, 0, ',', '.') }}</div>
+                <div class="text-xs text-white/50">
+                    @php
+                        $stockStatus = \App\Services\RobuxStockService::getStockStatus();
+                    @endphp
+                    @if($stockStatus['is_low'])
+                        <span class="text-red-300">⚠️ Stok Rendah</span>
+                    @elseif($stockStatus['status'] === 'high')
+                        <span class="text-emerald-300">✅ Stok Tinggi</span>
+                    @else
+                        <span class="text-blue-300">📊 Normal</span>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 
@@ -120,7 +136,7 @@
                         class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
                         required 
                     />
-                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Roblox potong 30% dari GamePass (hanya untuk GamePass, bukan harga customer)</p>
+                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Roblox potong 30% dari GamePass</p>
                 </label>
 
                 <label class="block">
@@ -135,6 +151,36 @@
                         required 
                     />
                     <p class="mt-1 text-white/50 text-xs sm:text-sm">Minimal jumlah Robux yang bisa dipesan</p>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <label class="block">
+                    <span class="text-white/70 text-sm sm:text-base">Stok Robux Tersedia</span>
+                    <input 
+                        name="robux_stock" 
+                        type="number" 
+                        step="1" 
+                        min="0"
+                        value="{{ old('robux_stock', $settings['robux_stock'] ?? '100000') }}"
+                        class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
+                        required 
+                    />
+                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Jumlah Robux yang tersedia untuk dijual</p>
+                </label>
+
+                <label class="block">
+                    <span class="text-white/70 text-sm sm:text-base">Stok Minimum Alert</span>
+                    <input 
+                        name="robux_stock_minimum" 
+                        type="number" 
+                        step="1" 
+                        min="0"
+                        value="{{ old('robux_stock_minimum', $settings['robux_stock_minimum'] ?? '10000') }}"
+                        class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
+                        required 
+                    />
+                    <p class="mt-1 text-white/50 text-xs sm:text-sm">Alert ketika stok di bawah jumlah ini</p>
                 </label>
             </div>
 
@@ -155,6 +201,40 @@
                         <span class="text-blue-300 font-bold" id="preview-gamepass-total">130 Robux</span>
                     </div>
                     <p class="text-xs text-white/50 mt-2">Customer akan dapat 100 Robux bersih setelah Roblox potong 30%</p>
+                </div>
+            </div>
+
+            <!-- Stock Status Information -->
+            <div class="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-500/10 border border-gray-500/20 rounded-lg">
+                <h4 class="text-gray-300 font-medium mb-3 text-sm sm:text-base">Informasi Stok:</h4>
+                <div class="space-y-2 text-xs sm:text-sm">
+                    @php
+                        $stockStatus = \App\Services\RobuxStockService::getStockStatus();
+                        $pendingReduction = \App\Services\RobuxStockService::getPendingStockReduction();
+                        $totalUsage = \App\Services\RobuxStockService::getTotalStockUsage();
+                    @endphp
+                    <div class="flex justify-between">
+                        <span class="text-white/60">Stok Tersedia:</span>
+                        <span class="text-white font-medium">{{ number_format($stockStatus['current'], 0, ',', '.') }} Robux</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-white/60">Pending Orders:</span>
+                        <span class="text-yellow-300 font-medium">{{ number_format($pendingReduction, 0, ',', '.') }} Robux</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-white/60">Stok Efektif:</span>
+                        <span class="text-blue-300 font-medium">{{ number_format($totalUsage, 0, ',', '.') }} Robux</span>
+                    </div>
+                    <div class="flex justify-between border-t border-white/10 pt-2">
+                        <span class="text-white/60">Status:</span>
+                        @if($stockStatus['is_low'])
+                            <span class="text-red-300 font-medium">⚠️ Stok Rendah</span>
+                        @elseif($stockStatus['status'] === 'high')
+                            <span class="text-emerald-300 font-medium">✅ Stok Tinggi</span>
+                        @else
+                            <span class="text-blue-300 font-medium">📊 Normal</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

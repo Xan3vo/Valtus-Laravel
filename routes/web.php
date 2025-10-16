@@ -21,6 +21,13 @@ Route::get('/', function () {
     $pricePer1 = $pricePer100 / 100.0;
     $robuxMinOrder = (int) Setting::getValue('robux_min_order', '100');
     
+    // Get real stock status
+    $stockStatus = \App\Services\RobuxStockService::getStockStatus();
+    $robuxStock = $stockStatus['current'];
+    
+    // Get recent activities for live feed
+    $recentActivities = \App\Models\Activity::getRecentActivities(5);
+    
     // Get other products (non-Robux)
     $otherProducts = \App\Models\Product::where('category', '!=', 'robux')
         ->where('is_active', true)
@@ -34,6 +41,9 @@ Route::get('/', function () {
         'robuxPricePer1' => $pricePer1,
         'gamepassTaxRate' => $taxRate,
         'robuxMinOrder' => $robuxMinOrder,
+        'robuxStock' => $robuxStock,
+        'stockStatus' => $stockStatus,
+        'recentActivities' => $recentActivities,
         'otherProducts' => $otherProducts,
     ]);
 })->name('home');
@@ -93,6 +103,44 @@ Route::get('/products', function () {
 // API route for contact info
 Route::get('/api/contact-info', [App\Http\Controllers\Api\ContactController::class, 'getContactInfo'])->name('api.contact-info');
 
+// API route for recent activities (max 3)
+Route::get('/api/recent-activities', function() {
+    // Always get exactly 3 most recent activities
+    $activities = \App\Models\Activity::getRecentActivities(3);
+    
+    return response()->json([
+        'activities' => $activities->map(function($activity) {
+            // Get avatar data dynamically
+            $avatarData = \App\Services\RobloxAvatarService::getAvatarWithFallback($activity->username);
+            
+            return [
+                'id' => $activity->id,
+                'username' => $activity->username,
+                'masked_username' => $activity->masked_username,
+                'formatted_amount' => $activity->formatted_amount,
+                'time_ago' => $activity->processed_at->diffForHumans(),
+                'processed_at' => $activity->processed_at->toISOString(),
+                'avatar_data' => $avatarData,
+                'product_info' => $activity->product_info
+            ];
+        })
+    ]);
+})->name('api.recent-activities');
+
+// API route for current stock
+Route::get('/api/current-stock', function() {
+    $stockStatus = \App\Services\RobuxStockService::getStockStatus();
+    
+    return response()->json([
+        'current_stock' => $stockStatus['current'],
+        'minimum_stock' => $stockStatus['minimum'],
+        'is_low' => $stockStatus['is_low'],
+        'status' => $stockStatus['status']
+    ]);
+})->name('api.current-stock');
+
+
+
 // Product order routes
 Route::get('/products/{gameType}', [App\Http\Controllers\User\ProductOrderController::class, 'show'])->name('user.product-order');
 Route::post('/user/store-product-data', [App\Http\Controllers\User\ProductOrderController::class, 'storeProductData'])->name('user.store-product-data');
@@ -150,11 +198,11 @@ Route::get('/user/status', [App\Http\Controllers\User\StatusController::class, '
 Route::get('/user/status/search', [App\Http\Controllers\User\StatusController::class, 'search'])->name('user.status.search');
 Route::get('/user/status/{orderId}', [App\Http\Controllers\User\StatusController::class, 'show'])->name('user.status.show');
 
-// Admin Authentication Routes
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Admin Authentication Routes - Secure URLs
+Route::prefix('system')->name('admin.')->group(function () {
+    Route::get('/access', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/access', [AuthController::class, 'login']);
+    Route::post('/exit', [AuthController::class, 'logout'])->name('logout');
     
     // Protected Admin Routes
     Route::middleware(['admin'])->group(function () {
