@@ -169,6 +169,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
         Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::get('/settings/download-script', [SettingController::class, 'downloadScript'])->name('settings.download-script');
+        Route::get('/settings/view-script', [SettingController::class, 'viewScript'])->name('settings.view-script');
         Route::get('/robux-pricing', [RobuxPricingController::class, 'index'])->name('robux-pricing');
         Route::put('/robux-pricing', [RobuxPricingController::class, 'update'])->name('robux-pricing.update');
         Route::get('/payment-settings', [PaymentSettingsController::class, 'index'])->name('payment-settings');

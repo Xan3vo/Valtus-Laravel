@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -91,6 +92,9 @@ class PaymentController extends Controller
                     ['confirmed_at' => now()->toISOString()]
                 ))
             ]);
+            
+            // Add order to spreadsheet if integration is enabled
+            GoogleSheetsService::addOrderToSpreadsheet($order);
             
             $message = 'Payment confirmed successfully!';
         } else {

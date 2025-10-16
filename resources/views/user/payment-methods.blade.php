@@ -94,6 +94,12 @@ if($currentOrderId) {
                 <div class="rounded-lg border border-white/10 p-6 bg-white/5">
                     <h3 class="text-white font-medium mb-4">QRIS Payment</h3>
                     <div class="text-center">
+                        <!-- Nominal Transfer -->
+                        <div class="mb-4 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                            <div class="text-emerald-300 text-sm font-medium mb-1">Nominal yang harus ditransfer:</div>
+                            <div class="text-white text-2xl font-bold">{{ $order ? 'Rp ' . number_format($order->price, 0, ',', '.') : '-' }}</div>
+                        </div>
+                        
                         <div class="inline-block p-4 bg-white rounded-lg">
                             <img src="/{{ \App\Models\Setting::getValue('manual_qris_image') }}" alt="QR Code" class="h-48 w-48 object-contain">
                         </div>

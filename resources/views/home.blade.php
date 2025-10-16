@@ -225,10 +225,7 @@
                         <button type="button" class="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20" onclick="document.getElementById('quickScroll').scrollBy({left:-400,behavior:'smooth'})" aria-label="Scroll left">‹</button>
                         <div id="quickScroll" class="overflow-x-auto no-scrollbar scroll-smooth px-1 grid grid-flow-col grid-rows-2 auto-cols-max gap-3">
                             @php
-                                $min = max(($robuxMinOrder ?? 100), 1);
-                                $quick = [$min];
-                                for ($i = 100; $i <= 5000; $i += 100) { $quick[] = $i; }
-                                $quick = array_values(array_unique($quick)); sort($quick);
+                                $quick = [100, 500, 1000, 2000, 5000, 10000, 25000, 50000];
                             @endphp
                             @foreach($quick as $pkg)
                                 @php $pkgPrice = ($robuxPricePer100 ?? 10000) * ($pkg / 100); @endphp

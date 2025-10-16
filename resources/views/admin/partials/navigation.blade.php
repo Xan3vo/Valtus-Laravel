@@ -98,7 +98,7 @@
             </div>
             
             <!-- Right Side: Logout Button -->
-            <div class="flex items-center">
+        <div class="flex items-center">
                 <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                     @csrf
                     <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors duration-200">

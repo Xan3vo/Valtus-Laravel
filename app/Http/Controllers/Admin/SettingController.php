@@ -22,6 +22,9 @@ class SettingController extends Controller
             'discord_server' => Setting::getValue('discord_server', ''),
             'telegram_username' => Setting::getValue('telegram_username', ''),
             'youtube_channel' => Setting::getValue('youtube_channel', ''),
+            'spreadsheet_url' => Setting::getValue('spreadsheet_url', ''),
+            'spreadsheet_script_url' => Setting::getValue('spreadsheet_script_url', ''),
+            'spreadsheet_enabled' => Setting::getValue('spreadsheet_enabled', '0') === '1',
             'maintenance_mode' => Setting::getValue('maintenance_mode', '0') === '1',
             'maintenance_message' => Setting::getValue('maintenance_message', ''),
         ];
@@ -43,6 +46,9 @@ class SettingController extends Controller
             'discord_server' => 'nullable|url|max:255',
             'telegram_username' => 'nullable|string|max:50',
             'youtube_channel' => 'nullable|url|max:255',
+            'spreadsheet_url' => 'nullable|url|max:500',
+            'spreadsheet_script_url' => 'nullable|url|max:500',
+            'spreadsheet_enabled' => 'boolean',
             'maintenance_mode' => 'boolean',
             'maintenance_message' => 'nullable|string|max:1000',
         ]);
@@ -62,10 +68,41 @@ class SettingController extends Controller
         Setting::setValue('telegram_username', $request->telegram_username, 'Telegram username');
         Setting::setValue('youtube_channel', $request->youtube_channel, 'YouTube channel');
         
+        // Spreadsheet settings
+        Setting::setValue('spreadsheet_url', $request->spreadsheet_url, 'Spreadsheet URL');
+        Setting::setValue('spreadsheet_script_url', $request->spreadsheet_script_url, 'Spreadsheet Script URL');
+        Setting::setValue('spreadsheet_enabled', $request->boolean('spreadsheet_enabled') ? '1' : '0', 'Spreadsheet integration');
+        
         // System settings
         Setting::setValue('maintenance_mode', $request->boolean('maintenance_mode') ? '1' : '0', 'Maintenance mode');
         Setting::setValue('maintenance_message', $request->maintenance_message, 'Maintenance message');
 
         return redirect()->back()->with('success', 'Settings updated successfully.');
+    }
+
+    public function downloadScript()
+    {
+        $scriptPath = base_path('google-apps-script-simple.js');
+        
+        if (!file_exists($scriptPath)) {
+            abort(404, 'Script file not found');
+        }
+
+        return response()->download($scriptPath, 'valtus-google-apps-script.js', [
+            'Content-Type' => 'application/javascript',
+        ]);
+    }
+
+    public function viewScript()
+    {
+        $scriptPath = base_path('google-apps-script-simple.js');
+        
+        if (!file_exists($scriptPath)) {
+            abort(404, 'Script file not found');
+        }
+
+        return response()->file($scriptPath, [
+            'Content-Type' => 'text/plain',
+        ]);
     }
 }

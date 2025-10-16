@@ -171,25 +171,27 @@
                 <h3 class="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Aksi Pembayaran</h3>
                 
                 @if($order->payment_status === 'waiting_confirmation')
-                <form method="POST" action="{{ route('admin.payments.confirm', $order) }}">
+                <form method="POST" action="{{ route('admin.payments.confirm', $order) }}" id="paymentForm">
                     @csrf
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                        <button type="submit" name="action" value="approve" 
-                                class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-emerald-500/25">
+                        <button type="button" 
+                                class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-emerald-500/25"
+                                id="approveBtn" onclick="handlePaymentAction('approve')">
                             <div class="flex items-center justify-center gap-1 sm:gap-2">
                                 <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-xs sm:text-sm">Setujui</span>
+                                <span class="text-xs sm:text-sm" id="approveText">Setujui</span>
                             </div>
                         </button>
-                        <button type="submit" name="action" value="reject" 
-                                class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-red-500/25">
+                        <button type="button" 
+                                class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-red-500/25"
+                                id="rejectBtn" onclick="handlePaymentAction('reject')">
                             <div class="flex items-center justify-center gap-1 sm:gap-2">
                                 <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
-                                <span class="text-xs sm:text-sm">Tolak</span>
+                                <span class="text-xs sm:text-sm" id="rejectText">Tolak</span>
                             </div>
                         </button>
                     </div>
@@ -257,5 +259,84 @@
         </div>
     </div>
 </main>
+
+<script>
+let isProcessing = false;
+
+function handlePaymentAction(action) {
+    console.log('Button clicked:', action); // Debug log
+    
+    // Prevent double-click
+    if (isProcessing) {
+        console.log('Already processing, ignoring click');
+        return false;
+    }
+    
+    // Set processing state
+    isProcessing = true;
+    console.log('Processing started');
+    
+    // Disable both buttons
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    const approveText = document.getElementById('approveText');
+    const rejectText = document.getElementById('rejectText');
+    
+    // Disable buttons
+    approveBtn.disabled = true;
+    rejectBtn.disabled = true;
+    
+    // Add loading state
+    if (action === 'approve') {
+        approveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        approveText.innerHTML = `
+            <svg class="animate-spin w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="ml-1">Memproses...</span>
+        `;
+    } else {
+        rejectBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        rejectText.innerHTML = `
+            <svg class="animate-spin w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="ml-1">Memproses...</span>
+        `;
+    }
+    
+    // Create hidden input for action
+    const form = document.getElementById('paymentForm');
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = action;
+    form.appendChild(actionInput);
+    
+    console.log('Submitting form with action:', action);
+    
+    // Submit form after a short delay to show loading state
+    setTimeout(() => {
+        form.submit();
+    }, 100);
+    
+    return false; // Prevent default form submission
+}
+
+// Reset processing state if user navigates back
+window.addEventListener('pageshow', function(event) {
+    isProcessing = false;
+});
+
+// Debug: Check if elements exist
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    console.log('Approve button:', document.getElementById('approveBtn'));
+    console.log('Reject button:', document.getElementById('rejectBtn'));
+    console.log('Form:', document.getElementById('paymentForm'));
+});
+</script>
 @endsection
 

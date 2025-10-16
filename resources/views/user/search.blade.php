@@ -120,7 +120,7 @@
                 <div id="quickWrap" class="hidden">
                     <div class="mt-1 text-white/70 text-sm">Pilih nominal cepat:</div>
                     <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                        @php $list=[]; for($i=100;$i<=2000;$i+=100){$list[]=$i;} @endphp
+                        @php $list = [100, 500, 1000, 2000, 5000, 10000, 25000, 50000]; @endphp
                         @foreach($list as $q)
                         <button type="button" class="chip rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition p-4 text-left">
                             <div class="flex items-center justify-between">
