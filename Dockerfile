@@ -26,7 +26,7 @@ RUN cp .env.example .env || true
 RUN php artisan key:generate --force
 RUN php artisan config:cache
 RUN php artisan route:cache
-RUN php artisan view:cache
+# php artisan view:cache is skipped because this project has no config/view.php
 
 RUN chown -R www-data:www-data /var/www/valtus/storage /var/www/valtus/bootstrap/cache
 
