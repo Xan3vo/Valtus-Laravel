@@ -119,6 +119,59 @@
             </div>
         </div>
 
+        <!-- Discount Rules Management for Gamepass -->
+        <div class="rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 class="text-lg sm:text-xl font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 sm:w-6 sm:w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Diskon Robux Via Gamepass
+                </h3>
+                <a href="{{ route('admin.robux-discount-rules', ['method' => 'gamepass']) }}" class="px-3 sm:px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm sm:text-base transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Kelola Rules Diskon
+                </a>
+            </div>
+            @php
+                $gamepassRules = \App\Models\RobuxDiscountRule::where('purchase_method', 'gamepass')
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('min_amount', 'desc')
+                    ->get();
+            @endphp
+            @if($gamepassRules->count() > 0)
+                <div class="space-y-2">
+                    @foreach($gamepassRules as $rule)
+                        <div class="p-3 bg-white/5 rounded-lg border border-white/10">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <div>
+                                    <div class="text-white font-medium text-sm">
+                                        {{ $rule->description }}
+                                    </div>
+                                    <div class="text-yellow-300 text-xs mt-1">
+                                        Diskon: 
+                                        @if($rule->discount_method === 'percentage')
+                                            {{ number_format($rule->discount_value, 0, ',', '.') }}%
+                                        @else
+                                            Rp {{ number_format($rule->discount_value, 0, ',', '.') }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    Aktif
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-white/50 text-sm">Belum ada discount rules. Klik "Kelola Rules Diskon" untuk membuat.</p>
+            @endif
+        </div>
+
         <!-- GamePass Tax Configuration -->
         <div class="rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5">
             <h3 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">Pajak GamePass Roblox</h3>

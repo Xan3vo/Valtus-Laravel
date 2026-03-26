@@ -19,8 +19,9 @@
         <nav class="hidden md:flex items-center gap-8 text-sm">
             <a href="{{ route('home') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beranda</a>
             <a href="{{ route('user.search') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beli Robux</a>
+            <a href="{{ route('products') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Produk</a>
             <a href="{{ route('user.status') }}" class="text-emerald-400 hover:text-emerald-300 transition-colors duration-200 font-medium">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(); return false;" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
         </nav>
         
         <!-- Desktop Actions -->
@@ -41,8 +42,9 @@
         <div class="px-4 py-4 space-y-4">
             <a href="{{ route('home') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beranda</a>
             <a href="{{ route('user.search') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beli Robux</a>
-            <a href="#" onclick="showHelpModal()" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
-           
+            <a href="{{ route('products') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Produk</a>
+            <a href="{{ route('user.status') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Cek Pesanan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(); return false;" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
         </div>
     </div>
 </header>
@@ -163,8 +165,25 @@
                             <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500/30 to-blue-500/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                                 <img src="/assets/images/robux.png" class="h-6 w-6" alt="Robux">
                             </div>
-                            <div>
-                                <div class="text-white font-semibold text-lg">{{ number_format($order->amount, 0, ',', '.') }} Robux</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="text-white font-semibold text-lg">{{ number_format($order->amount, 0, ',', '.') }} Robux</div>
+                                    @if($order->purchase_method === 'group')
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-purple-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            </svg>
+                                            Group
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/40 text-emerald-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                            </svg>
+                                            Gamepass
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="text-white/60 text-sm">Order ID: {{ $order->order_id }}</div>
                                 <div class="text-white/50 text-xs mt-1">{{ $order->created_at->format('d M Y, H:i') }}</div>
                             </div>
@@ -185,11 +204,13 @@
                         <div class="text-white font-bold text-lg">Rp {{ number_format($order->price, 0, ',', '.') }}</div>
                         <div class="text-sm">
                             @php
-                                // Determine actual order status based on completed_at
+                                // Determine actual order status based on order_status and completed_at
                                 $isActuallyCompleted = false;
                                 $timeRemaining = null;
+                                $showProcessing = false;
 
-                                if (strtolower($order->order_status) === 'completed' && $order->completed_at && strtolower($order->payment_status) === 'completed') {
+                                // Check if order_status is completed and if completed_at has passed
+                                if (strtolower($order->order_status) === 'completed' && $order->completed_at) {
                                     $completedAt = \Carbon\Carbon::parse($order->completed_at);
                                     $now = \Carbon\Carbon::now();
                                     
@@ -197,7 +218,11 @@
                                         $isActuallyCompleted = true;
                                     } else {
                                         $timeRemaining = $now->diff($completedAt);
+                                        $showProcessing = true;
                                     }
+                                } elseif (strtolower($order->order_status) === 'pending') {
+                                    // If order_status is pending, show pending status
+                                    $showProcessing = false;
                                 }
                             @endphp
                             
@@ -216,7 +241,30 @@
                                     <div class="h-2 w-2 bg-blue-400 rounded-full"></div>
                                     Menunggu Konfirmasi
                                 </span>
-                            @elseif($order->payment_status === 'completed')
+                            @elseif($order->payment_status === 'Failed')
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                                            <div class="h-2 w-2 bg-red-400 rounded-full"></div>
+                                            Ditolak
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-red-200 mb-2">
+                                        Pembayaran ditolak oleh admin
+                                    </div>
+                                    <button onclick="showHelpModal(); return false;" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-medium transition-colors duration-200 border border-red-500/30">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                        Hubungi CS
+                                    </button>
+                                </div>
+                            @elseif(strtolower($order->order_status) === 'pending')
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                                    <div class="h-2 w-2 bg-orange-400 rounded-full animate-pulse"></div>
+                                    Pending
+                                </span>
+                            @elseif($showProcessing)
                                 <div class="space-y-1">
                                     <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
                                         <div class="h-2 w-2 bg-orange-400 rounded-full animate-pulse"></div>
@@ -253,42 +301,11 @@
                                         </div>
                                     @endif
                                 </div>
-                            @elseif($order->payment_status === 'failed')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
-                                    <div class="h-2 w-2 bg-red-400 rounded-full"></div>
-                                    Gagal
-                                </span>
                             @else
-                                <div class="space-y-1">
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                                        <div class="h-2 w-2 bg-orange-400 rounded-full animate-pulse"></div>
-                                        Sedang diproses
-                                    </span>
-                                    
-                                    @if($timeRemaining && ($timeRemaining->days > 0 || $timeRemaining->h > 0 || $timeRemaining->i > 0))
-                                        <div class="text-xs text-orange-300">
-                                            @if($timeRemaining->days > 0)
-                                                @if($order->game_type === 'Robux')
-                                                    Robux akan masuk dalam {{ $timeRemaining->days }} hari
-                                                @else
-                                                    Item akan masuk dalam {{ $timeRemaining->days }} hari
-                                                @endif
-                                            @elseif($timeRemaining->h > 0)
-                                                @if($order->game_type === 'Robux')
-                                                    Robux akan masuk dalam {{ $timeRemaining->h }} jam
-                                                @else
-                                                    Item akan masuk dalam {{ $timeRemaining->h }} jam
-                                                @endif
-                                            @else
-                                                @if($order->game_type === 'Robux')
-                                                    Robux akan masuk dalam {{ $timeRemaining->i }} menit
-                                                @else
-                                                    Item akan masuk dalam {{ $timeRemaining->i }} menit
-                                                @endif
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-500/20 text-gray-300 border border-gray-500/30">
+                                    <div class="h-2 w-2 bg-gray-400 rounded-full"></div>
+                                    {{ ucfirst($order->order_status ?? 'Unknown') }}
+                                </span>
                             @endif
                         </div>
                     </div>
@@ -393,9 +410,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function showHelpModal() {
+function showHelpModal(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     document.getElementById('helpModal').classList.remove('hidden');
     loadContactInfo();
+    return false;
 }
 
 function hideHelpModal() {
@@ -404,17 +426,25 @@ function hideHelpModal() {
 
 async function loadContactInfo() {
     try {
-        const response = await fetch('/api/contact-info');
-        const data = await response.json();
-        
         const contactList = document.getElementById('contactList');
         const noContactMessage = document.getElementById('noContactMessage');
         
-        // Clear previous content
-        contactList.innerHTML = '';
+        // Reset states
+        if (contactList) {
+            contactList.innerHTML = '';
+            contactList.classList.remove('hidden');
+        }
+        if (noContactMessage) {
+            noContactMessage.classList.add('hidden');
+        }
+        
+        const response = await fetch('/api/contact-info');
+        const data = await response.json();
         
         if (data.contacts && data.contacts.length > 0) {
-            noContactMessage.classList.add('hidden');
+            if (noContactMessage) {
+                noContactMessage.classList.add('hidden');
+            }
             
             data.contacts.forEach(contact => {
                 const contactItem = document.createElement('div');
@@ -438,16 +468,28 @@ async function loadContactInfo() {
                     </div>
                 `;
                 
-                contactList.appendChild(contactItem);
+                if (contactList) {
+                    contactList.appendChild(contactItem);
+                }
             });
         } else {
-            contactList.classList.add('hidden');
-            noContactMessage.classList.remove('hidden');
+            if (contactList) {
+                contactList.classList.add('hidden');
+            }
+            if (noContactMessage) {
+                noContactMessage.classList.remove('hidden');
+            }
         }
     } catch (error) {
         console.error('Error loading contact info:', error);
-        document.getElementById('contactList').classList.add('hidden');
-        document.getElementById('noContactMessage').classList.remove('hidden');
+        const contactList = document.getElementById('contactList');
+        const noContactMessage = document.getElementById('noContactMessage');
+        if (contactList) {
+            contactList.classList.add('hidden');
+        }
+        if (noContactMessage) {
+            noContactMessage.classList.remove('hidden');
+        }
     }
 }
 
@@ -465,5 +507,58 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+
+<!-- Prevent back button if coming from successful payment -->
+@if(isset($order))
+<script>
+(function() {
+    // Check if coming from payment success via URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromPaymentSuccess = urlParams.get('payment') === 'success' || urlParams.get('payment') === 'pending';
+    
+    // Check if order is completed via Midtrans (payment_gateway = 'midtrans' and payment_status = 'Completed')
+    const isMidtransCompleted = {{ ($order->payment_gateway === 'midtrans' && $order->payment_status === 'Completed') ? 'true' : 'false' }};
+    
+    // Activate prevent back if coming from payment success OR if order is Midtrans completed
+    if (fromPaymentSuccess || isMidtransCompleted) {
+        // Clear the URL parameter (clean URL)
+        if (window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+        }
+        
+        // Clear all history entries to prevent back to payment page
+        // Push multiple states to fill history stack
+        for (let i = 0; i < 5; i++) {
+            history.pushState(null, null, location.href);
+        }
+        
+        // Prevent back button - redirect to home if user tries to go back
+        window.addEventListener('popstate', function(event) {
+            // If user tries to go back, redirect to home
+            window.location.replace('{{ route("home") }}');
+        });
+        
+        // Also handle onpopstate
+        window.onpopstate = function(event) {
+            window.location.replace('{{ route("home") }}');
+        };
+        
+        // Prevent back on mobile browsers
+        window.addEventListener('focus', function() {
+            // Push state to prevent back
+            history.pushState(null, null, location.href);
+        });
+        
+        // Prevent browser back button on mobile and desktop
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // Page was loaded from cache, prevent back
+                window.location.replace('{{ route("home") }}');
+            }
+        });
+    }
+})();
+</script>
+@endif
 
 @endsection

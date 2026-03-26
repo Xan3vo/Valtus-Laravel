@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    
+
     public $incrementing = false;
     protected $keyType = 'string';
     protected $primaryKey = 'order_id';
@@ -26,6 +26,8 @@ class Order extends Model
         'payment_status',
         'order_status',
         'payment_method',
+        'purchase_method', // 'gamepass' or 'group' - only for Robux orders, nullable for backward compatibility
+        'payment_gateway', // 'midtrans' for Midtrans payments, NULL for manual
         'transaction_id',
         'proof_file',
         'gamepass_link',
@@ -41,6 +43,9 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'expires_at' => 'datetime',
         'completed_at' => 'datetime',
+        'spreadsheet_sent_at' => 'datetime',
+        'spreadsheet_last_attempt_at' => 'datetime',
+        'spreadsheet_attempts' => 'integer',
         'notes' => 'array',
     ];
 

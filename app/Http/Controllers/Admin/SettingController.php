@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {
@@ -15,6 +16,7 @@ class SettingController extends Controller
             'site_description' => Setting::getValue('site_description', 'Top Up Robux Terpercaya'),
             'contact_email' => Setting::getValue('contact_email', ''),
             'whatsapp_number' => Setting::getValue('whatsapp_number', ''),
+            'group_robux_min_order' => Setting::getValue('group_robux_min_order', Setting::getValue('robux_min_order', '100')),
             'address' => Setting::getValue('address', ''),
             'instagram_username' => Setting::getValue('instagram_username', ''),
             'tiktok_username' => Setting::getValue('tiktok_username', ''),
@@ -27,6 +29,15 @@ class SettingController extends Controller
             'spreadsheet_enabled' => Setting::getValue('spreadsheet_enabled', '0') === '1',
             'maintenance_mode' => Setting::getValue('maintenance_mode', '0') === '1',
             'maintenance_message' => Setting::getValue('maintenance_message', ''),
+            // Email Configuration (pakai database saja, bukan .env)
+            'mail_mailer' => Setting::getValue('mail_mailer', 'log'),
+            'mail_host' => Setting::getValue('mail_host', ''),
+            'mail_port' => Setting::getValue('mail_port', '587'),
+            'mail_username' => Setting::getValue('mail_username', ''),
+            'mail_password' => Setting::getValue('mail_password', ''), // Don't show actual password for security
+            'mail_encryption' => Setting::getValue('mail_encryption', 'tls'),
+            'mail_from_address' => Setting::getValue('mail_from_address', 'hello@example.com'),
+            'mail_from_name' => Setting::getValue('mail_from_name', 'Valtus'),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -51,6 +62,11 @@ class SettingController extends Controller
             'spreadsheet_enabled' => 'boolean',
             'maintenance_mode' => 'boolean',
             'maintenance_message' => 'nullable|string|max:1000',
+            // Email Configuration (Gmail)
+            'gmail_email' => 'required|email|max:255',
+            'gmail_app_password' => 'nullable|string|max:255', // Optional - jika kosong, pakai yang lama
+            'mail_from_name' => 'required|string|max:255',
+            'mail_port' => 'required|in:587,465',
         ]);
 
         // General settings
@@ -76,33 +92,111 @@ class SettingController extends Controller
         // System settings
         Setting::setValue('maintenance_mode', $request->boolean('maintenance_mode') ? '1' : '0', 'Maintenance mode');
         Setting::setValue('maintenance_message', $request->maintenance_message, 'Maintenance message');
+        
+        // Email Configuration (Gmail)
+        $mailPort = $request->mail_port ?? '587'; // Default 587, bisa pilih 465
+        $mailEncryption = ($mailPort == '465') ? 'ssl' : 'tls'; // 465 = SSL, 587 = TLS
+        
+        Setting::setValue('mail_mailer', 'smtp', 'Mail driver');
+        Setting::setValue('mail_host', 'smtp.gmail.com', 'Mail host');
+        Setting::setValue('mail_port', $mailPort, 'Mail port');
+        Setting::setValue('mail_username', $request->gmail_email, 'Mail username');
+        Setting::setValue('mail_from_address', $request->gmail_email, 'Mail from address');
+        Setting::setValue('mail_encryption', $mailEncryption, 'Mail encryption');
+        
+        // Hanya update password jika ada input baru (tidak kosong)
+        // Jika kosong, biarkan password lama tetap digunakan
+        if (!empty($request->gmail_app_password)) {
+            Setting::setValue('mail_password', $request->gmail_app_password, 'Mail password');
+        }
+        
+        Setting::setValue('mail_from_name', $request->mail_from_name, 'Mail from name');
+        
+        // Apply email config dynamically
+        $this->applyEmailConfig();
 
         return redirect()->back()->with('success', 'Settings updated successfully.');
     }
 
     public function downloadScript()
     {
-        $scriptPath = base_path('google-apps-script-simple.js');
+        // Use the main Apps Script file with all features (Email, Deduplication, etc.)
+        $scriptPath = base_path('google-apps-script.js');
         
         if (!file_exists($scriptPath)) {
             abort(404, 'Script file not found');
         }
 
-        return response()->download($scriptPath, 'valtus-google-apps-script.js', [
-            'Content-Type' => 'application/javascript',
+        // Read file content directly to ensure we get the latest version
+        $scriptContent = file_get_contents($scriptPath);
+        
+        return response($scriptContent, 200, [
+            'Content-Type' => 'application/javascript; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="valtus-google-apps-script.js"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
         ]);
     }
 
     public function viewScript()
     {
-        $scriptPath = base_path('google-apps-script-simple.js');
+        // Use the main Apps Script file with all features (Email, Deduplication, etc.)
+        $scriptPath = base_path('google-apps-script.js');
         
         if (!file_exists($scriptPath)) {
-            abort(404, 'Script file not found');
+            Log::error('Google Apps Script file not found', ['path' => $scriptPath]);
+            abort(404, 'Script file not found: ' . $scriptPath);
         }
 
-        return response()->file($scriptPath, [
-            'Content-Type' => 'text/plain',
+        // Read file content directly to avoid caching issues
+        $scriptContent = file_get_contents($scriptPath);
+        
+        // Verify file contains expected content (Email column, deduplication, etc.)
+        $hasEmail = strpos($scriptContent, "'Email'") !== false || strpos($scriptContent, '"Email"') !== false;
+        $hasDeduplication = strpos($scriptContent, 'checkDuplicate') !== false;
+        $hasExpectedHeaders = strpos($scriptContent, 'expectedHeaders') !== false;
+        
+        Log::info('Serving Google Apps Script', [
+            'path' => $scriptPath,
+            'file_size' => strlen($scriptContent),
+            'has_email' => $hasEmail,
+            'has_deduplication' => $hasDeduplication,
+            'has_expected_headers' => $hasExpectedHeaders,
         ]);
+        
+        return response($scriptContent, 200, [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+            'X-Script-Version' => '2.0-with-email', // Version header untuk debugging
+        ]);
+    }
+    
+    /**
+     * Apply email configuration from database settings to config
+     */
+    private function applyEmailConfig()
+    {
+        config([
+            'mail.default' => Setting::getValue('mail_mailer', 'log'),
+            'mail.mailers.smtp.host' => Setting::getValue('mail_host', ''),
+            'mail.mailers.smtp.port' => Setting::getValue('mail_port', '587'),
+            'mail.mailers.smtp.username' => Setting::getValue('mail_username', ''),
+            'mail.mailers.smtp.password' => Setting::getValue('mail_password', ''),
+            'mail.mailers.smtp.encryption' => $this->normalizeEncryption(Setting::getValue('mail_encryption', 'tls')),
+            'mail.mailers.smtp.timeout' => 60, // 60 seconds timeout
+            'mail.from.address' => Setting::getValue('mail_from_address', 'hello@example.com'),
+            'mail.from.name' => Setting::getValue('mail_from_name', 'Valtus'),
+        ]);
+    }
+    
+    /**
+     * Normalize encryption value (handle 'null' string)
+     */
+    private function normalizeEncryption($encryption)
+    {
+        return ($encryption === 'null' || $encryption === null) ? null : $encryption;
     }
 }

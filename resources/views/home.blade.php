@@ -3,7 +3,59 @@
 @section('title', 'Valtus — Top Up Robux')
 
 @section('body')
+@php
+    $robuxMinOrder = $robuxMinOrder ?? (int) \App\Models\Setting::getValue('robux_min_order', 100);
+@endphp
+<style>
+    @keyframes announcement-marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    @keyframes announcement-glow {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    @keyframes announcement-shine {
+        0% { transform: translateX(-120%); opacity: 0; }
+        15% { opacity: .55; }
+        35% { opacity: .35; }
+        60% { transform: translateX(120%); opacity: 0; }
+        100% { transform: translateX(120%); opacity: 0; }
+    }
+    .announcement-marquee-track {
+        width: max-content;
+        will-change: transform;
+        animation: announcement-marquee 28s linear infinite;
+    }
+    .announcement-marquee:hover .announcement-marquee-track {
+        animation-play-state: paused;
+    }
+    .announcement-glow {
+        background-size: 200% 200%;
+        animation: announcement-glow 10s ease-in-out infinite;
+    }
+    .announcement-border {
+        background-size: 200% 200%;
+        animation: announcement-glow 12s ease-in-out infinite;
+    }
+    .announcement-shine {
+        animation: announcement-shine 6.5s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .announcement-marquee-track { animation: none; transform: none; }
+        .announcement-glow { animation: none; }
+        .announcement-border { animation: none; }
+        .announcement-shine { animation: none; }
+    }
+</style>
 <header class="sticky top-0 z-50 backdrop-blur-md bg-gray-900/80 border-b border-white/10 shadow-lg">
+    @php
+        $announcementBarEnabled = \App\Models\Setting::getValue('announcement_bar_enabled', '0') === '1';
+        $announcementBarText = \App\Models\Setting::getValue('announcement_bar_text', '');
+        $announcementBarLink = \App\Models\Setting::getValue('announcement_bar_link', '');
+        $announcementBarHasText = $announcementBarEnabled && is_string($announcementBarText) && trim($announcementBarText) !== '';
+        $announcementBarHasLink = $announcementBarHasText && is_string($announcementBarLink) && trim($announcementBarLink) !== '';
+    @endphp
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <div class="relative">
@@ -18,8 +70,9 @@
         <nav class="hidden md:flex items-center gap-8 text-sm">
             <a href="{{ route('home') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beranda</a>
             <a href="#topup" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beli Robux</a>
+            <a href="{{ route('products') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Produk</a>
             <a href="{{ route('user.status') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(event); return false;" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
         </nav>
         <!-- Desktop Actions -->
         <div class="hidden md:flex items-center gap-4">
@@ -44,10 +97,66 @@
         <div class="px-4 py-4 space-y-4">
             <a href="{{ route('home') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beranda</a>
             <a href="#topup" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beli Robux</a>
+            <a href="{{ route('products') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Produk</a>
             <a href="{{ route('user.status') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(event); return false;" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
         </div>
     </div>
+
+    @if($announcementBarHasText)
+        <div class="border-t border-white/10 announcement-glow bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-purple-500/10">
+            @php
+                $announcementBarDisplayText = trim($announcementBarText);
+            @endphp
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+                <div class="announcement-border rounded-xl p-[1px] bg-gradient-to-r from-emerald-500/30 via-sky-500/30 to-purple-500/30">
+                    <div class="announcement-marquee relative rounded-xl border border-white/10 bg-gray-900/40 backdrop-blur-md overflow-hidden shadow-lg shadow-black/20">
+                        <div class="pointer-events-none absolute inset-0">
+                            <div class="announcement-shine absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        </div>
+
+                        @if($announcementBarHasLink)
+                            <a href="{{ $announcementBarLink }}" target="_blank" rel="noopener noreferrer" class="block px-3 sm:px-4 py-2.5 hover:bg-white/5 transition-colors">
+                        @else
+                            <div class="px-3 sm:px-4 py-2.5">
+                        @endif
+
+                        <div class="flex items-center gap-3">
+                            <div class="shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-lg bg-emerald-500/15 border border-emerald-500/20">
+                                <svg class="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2M12 7v7m0 0l-3 3m3-3l3 3M5 12a7 7 0 1114 0 7 7 0 01-14 0z"></path>
+                                </svg>
+                            </div>
+
+                            <div class="relative flex-1 overflow-hidden">
+                                <div class="announcement-marquee-track flex items-center gap-8 whitespace-nowrap text-sm text-white/90">
+                                    <span class="font-medium">{{ $announcementBarDisplayText }}</span>
+                                    <span class="text-white/35">•</span>
+                                    <span class="font-medium">{{ $announcementBarDisplayText }}</span>
+                                    <span class="text-white/35">•</span>
+                                    <span class="font-medium">{{ $announcementBarDisplayText }}</span>
+                                    <span class="text-white/35">•</span>
+                                    <span class="font-medium">{{ $announcementBarDisplayText }}</span>
+                                </div>
+                            </div>
+
+                            @if($announcementBarHasLink)
+                                <svg class="w-4 h-4 text-white/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h6m0 0v6m0-6L10 20l-3-3L20 7z"></path>
+                                </svg>
+                            @endif
+                        </div>
+
+                        @if($announcementBarHasLink)
+                            </a>
+                        @else
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </header>
 
 <main>
@@ -61,11 +170,33 @@
                         Andalan Robux Murah Asli dari Developer
                         <img src="/assets/images/verif.png" alt="Verified" class="inline-block h-6 w-6 sm:h-8 sm:w-8 ml-2 align-middle">
                     </h1>
-                    <p class="mt-4 text-gray-200 max-w-xl text-sm sm:text-base">
-                        Beli Robux dengan harga terbaik langsung dari developer resmi. 
-                        Proses cepat, aman, dan terjamin keasliannya. Validasi username 
-                        otomatis untuk pengalaman yang mulus.
-                    </p>
+                    <div class="mt-6 text-gray-200 max-w-2xl">
+                        <p class="text-lg sm:text-xl font-bold text-white mb-4 leading-relaxed">
+                            Beli Robux dengan harga terbaik langsung dari developer resmi!
+                        </p>
+                        
+                        <!-- Simple Features List -->
+                        <div class="space-y-2 mb-6">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-sm">Proses cepat & aman</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-sm">Terjamin keasliannya</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-sm">Validasi username otomatis</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3">
                         <a href="#topup" class="inline-flex items-center justify-center gap-2 rounded-md px-4 py-3 bg-white text-black hover:bg-gray-200 transition text-sm sm:text-base">
                             <img src="/assets/images/robux.png" class="h-5 w-5" alt="Robux">
@@ -77,6 +208,14 @@
                     </div>
                 </div>
                 <div class="relative order-1 md:order-2">
+                    @php
+                        $announcementEnabled = \App\Models\Setting::getValue('announcement_enabled', '0') === '1';
+                        $announcementLink = \App\Models\Setting::getValue('announcement_link', '');
+                        $announcementHasLink = $announcementEnabled && is_string($announcementLink) && trim($announcementLink) !== '';
+                    @endphp
+                    @if($announcementHasLink)
+                        <a href="{{ $announcementLink }}" target="_blank" rel="noopener noreferrer" class="block">
+                    @endif
                     <div class="aspect-[16/9] md:aspect-[4/3] rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 flex items-center justify-center overflow-hidden">
                         @php
                             $homeHeroImage = \App\Models\Setting::getValue('home_hero_image', '');
@@ -91,6 +230,9 @@
                             <img src="/assets/images/iconv.jpg" alt="Valtus Banner" class="h-20 sm:h-24 md:h-28 w-auto opacity-90">
                         @endif
                     </div>
+                    @if($announcementHasLink)
+                        </a>
+                    @endif
                 </div>
             </div>
             <div class="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
@@ -139,11 +281,22 @@
                             </div>
                             <div class="flex-shrink-0">
                                 @if($activity->game_type === 'Robux')
-                                    <img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">
+                                    <img src="/assets/images/robux.png" alt="Robux" class="w-5 h-5 opacity-70">
                                 @else
-                                    <div class="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                        <span class="text-white text-xs font-bold">P</span>
-                                    </div>
+                                    @php
+                                        $product = \App\Models\Product::where('game_type', $activity->game_type)->first();
+                                    @endphp
+                                    @if($product && ($product->image || $product->image_url))
+                                        @if($product->image)
+                                            <img src="{{ asset($product->image) }}" alt="{{ $activity->game_type }}" class="w-6 h-6 rounded object-cover opacity-80">
+                                        @elseif($product->image_url)
+                                            <img src="{{ $product->image_url }}" alt="{{ $activity->game_type }}" class="w-6 h-6 rounded object-cover opacity-80">
+                                        @endif
+                                    @else
+                                        <div class="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                                            <span class="text-white text-sm font-bold">P</span>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -163,25 +316,29 @@
                 <a href="#" class="text-sm text-gray-400 hover:text-white self-start sm:self-auto">Lihat Ranking →</a>
             </div>
 
-            <div class="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div class="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Stok Robux via Gamepass -->
                 <div class="rounded-xl border border-white/20 p-5 bg-white/10">
-                    <div class="flex items-center justify-between">
-                        <div class="font-medium">Stok Robux</div>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <img src="/assets/images/robux.png" class="h-4 w-4 opacity-80" alt="Robux">
+                            <div class="font-medium text-sm">Via Gamepass</div>
+                        </div>
                         @if($stockStatus['is_low'])
-                            <span class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/30">Low Stock</span>
+                            <span class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/30">Low</span>
                         @elseif($stockStatus['status'] === 'high')
-                            <span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">High Stock</span>
+                            <span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">High</span>
                         @else
                             <span class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Normal</span>
                         @endif
                     </div>
-                    <div class="mt-3 text-2xl font-semibold flex items-center gap-2">
+                    <div class="mt-2 text-2xl font-semibold flex items-center gap-2">
                         <span id="stockRbx">{{ number_format($robuxStock ?? 100000, 0, ',', '.') }}</span>
                         <span id="stockDelta" class="text-xs px-1.5 py-0.5 rounded hidden"></span>
                     </div>
                     @if($stockStatus['is_low'])
                         <div class="mt-2 text-xs text-red-300">
-                            ⚠️ Stok rendah! Segera isi ulang.
+                            ⚠️ Stok rendah
                         </div>
                     @endif
                     <script>
@@ -269,30 +426,200 @@
                     </a>
                 </div>
 
-                <div class="rounded-xl border border-white/20 p-5 md:col-span-2 bg-white/5">
+                <!-- Stok Robux via Group -->
+                <div class="rounded-xl border border-purple-500/30 p-5 bg-purple-500/5">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-purple-400 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <div class="font-medium text-sm">Via Group</div>
+                        </div>
+                        @if($groupStockStatus['is_low'])
+                            <span class="text-xs px-2 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/30">Low</span>
+                        @elseif($groupStockStatus['status'] === 'high')
+                            <span class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">High</span>
+                        @else
+                            <span class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">Normal</span>
+                        @endif
+                    </div>
+                    <div class="mt-2 text-2xl font-semibold flex items-center gap-2">
+                        <span id="stockGroupRbx">{{ number_format($groupRobuxStock ?? 50000, 0, ',', '.') }}</span>
+                        <span id="stockGroupDelta" class="text-xs px-1.5 py-0.5 rounded hidden"></span>
+                    </div>
+                    @if($groupStockStatus['is_low'])
+                        <div class="mt-2 text-xs text-red-300">
+                            ⚠️ Stok rendah
+                        </div>
+                    @endif
+                    <script>
+                        // Group stock display
+                        (function(){
+                            const el = document.getElementById('stockGroupRbx');
+                            const deltaEl = document.getElementById('stockGroupDelta');
+                            
+                            function fmtRbx(n){
+                                if(n >= 1000){ return (Math.round(n/100)/10).toFixed(1) + 'k+'; }
+                                return n.toString();
+                            }
+                            
+                            // Set initial stock from database
+                            el.textContent = fmtRbx({{ $groupRobuxStock ?? 50000 }});
+                            
+                            // Function to update group stock when there's a real change
+                            window.updateGroupStockDisplay = function(newStock, change) {
+                                const actualChange = change || (newStock - lastGroupStock);
+                                
+                                if (actualChange !== 0) {
+                                    const startValue = lastGroupStock;
+                                    const start = performance.now();
+                                    const duration = 800;
+                                    
+                                    function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+                                    
+                                    function frame(now) {
+                                        const p = Math.min(1, (now - start) / duration);
+                                        const value = Math.round(startValue + (actualChange * easeOutQuad(p)));
+                                        el.textContent = fmtRbx(value);
+                                        
+                                        if (p < 1) {
+                                            requestAnimationFrame(frame);
+                                        } else {
+                                            el.textContent = fmtRbx(newStock);
+                                            if (Math.abs(actualChange) > 0) {
+                                                deltaEl.textContent = (actualChange > 0 ? '▲ ' : '▼ ') + Math.abs(actualChange).toLocaleString('id-ID');
+                                                deltaEl.className = 'text-xs px-1.5 py-0.5 rounded ' + (actualChange > 0 ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/15 text-red-300 border border-red-500/30');
+                                                deltaEl.style.opacity = '1';
+                                                deltaEl.classList.remove('hidden');
+                                                
+                                                try { 
+                                                    el.animate([
+                                                        {transform:'scale(1)'},
+                                                        {transform:'scale(1.05)'},
+                                                        {transform:'scale(1)'}
+                                                    ], {duration: 400}); 
+                                                } catch(e) {}
+                                                
+                                                setTimeout(() => { 
+                                                    deltaEl.style.transition = 'opacity 600ms'; 
+                                                    deltaEl.style.opacity = '0'; 
+                                                }, 2000);
+                                                setTimeout(() => { 
+                                                    deltaEl.classList.add('hidden'); 
+                                                    deltaEl.style.transition = ''; 
+                                                }, 2600);
+                                            }
+                                        }
+                                    }
+                                    
+                                    requestAnimationFrame(frame);
+                                }
+                            };
+                            
+                            window.lastGroupStock = {{ $groupRobuxStock ?? 50000 }};
+                        })();
+                    </script>
+                    <a href="{{ route('user.search-group') }}" class="mt-5 inline-flex items-center gap-2 rounded-md px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span>Beli via Group</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-4 sm:mt-6">
+                <div class="rounded-xl border border-white/20 p-5 bg-white/5">
                     <div class="font-medium mb-3">Pilih Cepat</div>
                     <div class="relative">
-                        <button type="button" id="scrollLeftBtn" class="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group" onclick="scrollQuickSelect('left')" aria-label="Scroll left">
+                        <button type="button" id="scrollLeftBtn" class="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group hidden" onclick="scrollQuickSelect('left')" aria-label="Scroll left">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </button>
                         <div id="quickScroll" class="overflow-x-auto no-scrollbar scroll-smooth px-1 grid grid-flow-col grid-rows-2 auto-cols-max gap-3">
                             @php
-                                $quick = [100, 500, 1000, 2000, 5000, 10000, 25000, 50000];
+                                $quickBase = [100, 250, 500, 750, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000];
+                                $quick = array_values(array_filter($quickBase, function ($v) use ($robuxMinOrder) {
+                                    return (int) $v >= (int) $robuxMinOrder;
+                                }));
+                                if (!in_array((int) $robuxMinOrder, $quick, true)) {
+                                    $quick[] = (int) $robuxMinOrder;
+                                }
+                                sort($quick);
                             @endphp
                             @foreach($quick as $pkg)
-                                @php $pkgPrice = ($robuxPricePer100 ?? 10000) * ($pkg / 100); @endphp
-                                <a href="#" onclick="selectAmount({{ $pkg }})" class="inline-flex shrink-0 flex-col items-center text-center rounded-md border border-white/15 px-4 py-3 text-sm hover:border-white/30 hover:bg-white/5 transition mx-1 min-w-[140px] group">
+                                @php 
+                                    $pkgPrice = ($robuxPricePer100 ?? 10000) * ($pkg / 100);
+                                    // Check discount for gamepass and group
+                                    $gamepassDiscount = \App\Models\RobuxDiscountRule::findMatchingRule($pkg, 'gamepass');
+                                    $groupDiscount = \App\Models\RobuxDiscountRule::findMatchingRule($pkg, 'group');
+                                    
+                                    $gamepassBasePrice = ($robuxPricePer100 ?? 10000) * ($pkg / 100);
+                                    $groupBasePrice = (\App\Models\Setting::getValue('group_robux_price_per_100', '10000')) * ($pkg / 100);
+                                    
+                                    $gamepassFinalPrice = $gamepassBasePrice;
+                                    $groupFinalPrice = $groupBasePrice;
+                                    $gamepassDiscountAmount = 0;
+                                    $groupDiscountAmount = 0;
+                                    $gamepassDiscountPercent = 0;
+                                    $groupDiscountPercent = 0;
+                                    
+                                    if ($gamepassDiscount) {
+                                        $gamepassDiscountAmount = $gamepassDiscount->calculateDiscount($gamepassBasePrice);
+                                        $gamepassFinalPrice = max(0, $gamepassBasePrice - $gamepassDiscountAmount);
+                                        $gamepassDiscountPercent = $gamepassBasePrice > 0 ? ($gamepassDiscountAmount / $gamepassBasePrice) * 100 : 0;
+                                    }
+                                    
+                                    if ($groupDiscount) {
+                                        $groupDiscountAmount = $groupDiscount->calculateDiscount($groupBasePrice);
+                                        $groupFinalPrice = max(0, $groupBasePrice - $groupDiscountAmount);
+                                        $groupDiscountPercent = $groupBasePrice > 0 ? ($groupDiscountAmount / $groupBasePrice) * 100 : 0;
+                                    }
+                                    
+                                    $hasDiscount = $gamepassDiscount || $groupDiscount;
+                                    $lowestFinalPrice = $hasDiscount ? min($gamepassFinalPrice, $groupFinalPrice) : $pkgPrice;
+                                @endphp
+                                <a href="#" onclick="selectAmount({{ $pkg }})" class="inline-flex shrink-0 flex-col items-center text-center rounded-md border {{ $hasDiscount ? 'border-yellow-500/50' : 'border-white/15' }} px-4 py-3 text-sm hover:border-white/30 hover:bg-white/5 transition-all duration-200 mx-1 min-w-[140px] group select-none relative" data-amount="{{ $pkg }}" data-gamepass-discount="{{ $gamepassDiscount ? '1' : '0' }}" data-group-discount="{{ $groupDiscount ? '1' : '0' }}">
+                                    @if($hasDiscount)
+                                        <div class="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-yellow-500 text-black text-[10px] font-bold z-10">
+                                            🎉
+                                        </div>
+                                    @endif
                                     <div class="flex items-center gap-2">
                                         <img src="/assets/images/robux.png" class="h-4 w-4 opacity-80 group-hover:opacity-100 transition-opacity duration-200" alt="Robux">
                                         <span class="font-medium">{{ $pkg }} RBX</span>
                                     </div>
-                                    <div class="text-white/90 mt-1 group-hover:text-white transition-colors duration-200">Rp {{ number_format($pkgPrice, 0, ',', '.') }}</div>
+                                    @if($hasDiscount)
+                                        <div class="text-[10px] text-yellow-300 mt-0.5 font-medium leading-tight">
+                                            @if($gamepassDiscount && $groupDiscount)
+                                                Diskon Gamepass & Group
+                                            @elseif($gamepassDiscount)
+                                                Diskon Gamepass
+                                            @else
+                                                Diskon Group
+                                            @endif
+                                        </div>
+                                        <div class="text-white/60 line-through text-[11px] mt-0.5">Rp {{ number_format($pkgPrice, 0, ',', '.') }}</div>
+                                        <div class="text-emerald-300 font-bold text-sm mt-0.5 group-hover:text-emerald-200 transition-colors duration-200">Rp {{ number_format($lowestFinalPrice, 0, ',', '.') }}</div>
+                                        @if(($gamepassDiscountPercent > 0 || $groupDiscountPercent > 0))
+                                            <div class="text-yellow-400 text-[10px] mt-0.5 font-medium">
+                                                @if($gamepassDiscount && $groupDiscount)
+                                                    {{ number_format(max($gamepassDiscountPercent, $groupDiscountPercent), 0) }}% off
+                                                @elseif($gamepassDiscount)
+                                                    {{ number_format($gamepassDiscountPercent, 0) }}% off
+                                                @else
+                                                    {{ number_format($groupDiscountPercent, 0) }}% off
+                                                @endif
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div class="text-white/90 mt-1 group-hover:text-white transition-colors duration-200">Rp {{ number_format($pkgPrice, 0, ',', '.') }}</div>
+                                    @endif
                                 </a>
                             @endforeach
                         </div>
-                        <button type="button" id="scrollRightBtn" class="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group" onclick="scrollQuickSelect('right')" aria-label="Scroll right">
+                        <button type="button" id="scrollRightBtn" class="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-200 group hidden" onclick="scrollQuickSelect('right')" aria-label="Scroll right">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
@@ -301,6 +628,45 @@
                     <style>
                         .no-scrollbar::-webkit-scrollbar{display:none}
                         .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+                        
+                        /* Optimized animations for better performance */
+                        #quickScroll a {
+                            will-change: transform, opacity;
+                            backface-visibility: hidden;
+                            transform: translateZ(0);
+                        }
+                        
+                        #quickScroll a:hover {
+                            transform: translateZ(0) scale(1.02);
+                        }
+                        
+                        /* Hardware acceleration for scroll buttons */
+                        #scrollLeftBtn, #scrollRightBtn {
+                            will-change: opacity, transform;
+                            backface-visibility: hidden;
+                            transform: translateZ(0);
+                        }
+                        
+                        /* Smooth transitions without lag */
+                        .transition-all {
+                            transition: all 0.2s ease-out;
+                        }
+                        
+                        /* Optimize for touch devices */
+                        @media (hover: none) and (pointer: coarse) {
+                            #quickScroll a:hover {
+                                transform: none;
+                            }
+                        }
+                        
+                        /* Reduce motion for users who prefer it */
+                        @media (prefers-reduced-motion: reduce) {
+                            #quickScroll a,
+                            #scrollLeftBtn, 
+                            #scrollRightBtn {
+                                transition: none;
+                            }
+                        }
                     </style>
                 </div>
             </div>
@@ -313,7 +679,7 @@
             <!-- Cobain Game Lainnya -->
             <div class="rounded-xl border border-white/20 p-6 bg-white/5">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-medium">Cobain Game Lainnya Juga</h3>
+                    <h3 class="font-medium">Eksplor Produk Lain Kami</h3>
                     <a href="{{ route('products') }}" class="text-sm text-gray-300 hover:text-white">Lihat Semua →</a>
                 </div>
                 @if($otherProducts->count() > 0)
@@ -408,23 +774,51 @@
         </div>
     </section>
 
-    <!-- Guarantees moved to bottom -->
-    <section class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                <div class="rounded-md border border-white/20 p-4 bg-white/5">
-                    <dt class="text-gray-300">Garansi Akun 100% Aman</dt>
-                    <dd class="mt-2 font-medium">Fokus Keamanan</dd>
+    <!-- Guarantees Section -->
+    <section class="py-14">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- subtle top gradient divider -->
+            <div class="h-px w-full bg-gradient-to-r from-white/10 via-white/20 to-white/10 mb-10"></div>
+
+            <div class="text-center mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">Mengapa Memilih Valtus?</h2>
+                <p class="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">Komitmen kami untuk pengalaman top-up Robux yang aman, cepat, dan andal</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Garansi Akun 100% Aman -->
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl ring-1 ring-white/15 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Garansi Akun 100% Aman</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">Kami tidak akan pernah meminta data pribadi Anda. Keamanan akun adalah prioritas.</p>
                 </div>
-                <div class="rounded-md border border-white/20 p-4 bg-white/5">
-                    <dt class="text-gray-300">Pengalaman 5+ Tahun</dt>
-                    <dd class="mt-2 font-medium">Profesional</dd>
+
+                <!-- Pengalaman 10+ Tahun -->
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl ring-1 ring-white/15 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Pengalaman 10+ Tahun</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">Profesional sejak 2013, memahami ekosistem Roblox untuk layanan yang konsisten.</p>
                 </div>
-                <div class="rounded-md border border-white/20 p-4 bg-white/5">
-                    <dt class="text-gray-300">Garansi Robux Masuk</dt>
-                    <dd class="mt-2 font-medium">Transparan</dd>
+
+                <!-- Garansi Robux Masuk -->
+                <div class="text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl ring-1 ring-white/15 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Garansi Robux Masuk</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">Robux dipastikan masuk. Jika ada kendala, tim kami siap membantu 24/7.</p>
                 </div>
-            </dl>
+            </div>
         </div>
     </section>
 
@@ -469,99 +863,360 @@
         </div>
     </div>
 
+    <!-- Email Modal -->
+    <div id="emailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-white/20 rounded-xl max-w-md w-full">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-white">Email Customer Service</h3>
+                    <button onclick="hideEmailModal()" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm text-white/70 mb-2 block">Alamat Email</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="emailAddressDisplay" readonly class="flex-1 px-4 py-3 rounded-md bg-black/30 border border-white/15 text-white text-lg font-mono" />
+                            <button onclick="copyEmailAddress()" id="copyEmailBtn" class="px-4 py-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="emailCopySuccess" class="hidden mt-2 text-sm text-emerald-400 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Email berhasil disalin!
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <a id="openEmailClientLink" href="#" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Buka Email Client
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        async function selectAmount(amount) {
-            // Store amount in session
-            await fetch('/user/store-amount', {
+        // Cache DOM elements untuk performa
+        let cachedElements = {};
+        const ROBUX_MIN_ORDER = {{ (int) $robuxMinOrder }};
+        
+        function getCachedElement(id) {
+            if (!cachedElements[id]) {
+                cachedElements[id] = document.getElementById(id);
+            }
+            return cachedElements[id];
+        }
+        
+        // Optimized selectAmount function with better performance
+        let isProcessing = false;
+        
+        function selectAmount(amount) {
+            if (isProcessing) return; // Prevent multiple calls
+            isProcessing = true;
+            const parsedAmount = parseInt(amount, 10);
+            const safeAmount = Math.max(!isNaN(parsedAmount) ? parsedAmount : 0, ROBUX_MIN_ORDER);
+            
+            // Get clicked button for visual feedback
+            const clickedBtn = event?.target?.closest('a[data-amount]');
+            
+            // Disable all quick select buttons to prevent double clicks
+            const quickSelectButtons = document.querySelectorAll('#quickScroll a[data-amount]');
+            quickSelectButtons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            });
+            
+            // Show loading state on clicked button
+            if (clickedBtn) {
+                clickedBtn.style.opacity = '0.9';
+                clickedBtn.style.transform = 'scale(0.98)';
+                clickedBtn.style.borderColor = 'rgba(16, 185, 129, 0.5)'; // emerald border
+            }
+            
+            // Store amount in session (non-blocking)
+            fetch('/user/store-amount', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({ amount: amount })
+                body: JSON.stringify({ amount: safeAmount })
+            }).then(() => {
+                console.log('Amount stored successfully:', safeAmount);
+            }).catch(error => {
+                console.error('Error storing amount:', error);
             });
             
-            // Redirect to search page without URL parameters
-            window.location.href = '{{ route("user.search") }}';
+            // Immediate redirect untuk responsivitas maksimal
+            requestAnimationFrame(() => {
+                window.location.href = '{{ route("user.search") }}';
+            });
         }
 
-        function showHelpModal() {
-            document.getElementById('helpModal').classList.remove('hidden');
-            loadContactInfo();
-        }
-
-        function hideHelpModal() {
-            document.getElementById('helpModal').classList.add('hidden');
-        }
-
-        async function loadContactInfo() {
+        // Make loadContactInfo globally available FIRST (before showHelpModal)
+        window.loadContactInfo = async function() {
             try {
-                const response = await fetch('/api/contact-info');
-                const data = await response.json();
-                
                 const contactList = document.getElementById('contactList');
                 const noContactMessage = document.getElementById('noContactMessage');
                 
-                // Clear previous content
-                contactList.innerHTML = '';
+                // Show loading state immediately
+                if (contactList) {
+                    contactList.innerHTML = '<div class="text-center py-4"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500"></div><div class="text-white/60 text-sm mt-2">Memuat kontak...</div></div>';
+                    contactList.classList.remove('hidden');
+                }
+                if (noContactMessage) {
+                    noContactMessage.classList.add('hidden');
+                }
+                
+                // Fetch contact info immediately (no delay)
+                const response = await fetch('/api/contact-info', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    cache: 'no-cache'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch contact info');
+                }
+                
+                const data = await response.json();
                 
                 if (data.contacts && data.contacts.length > 0) {
-                    noContactMessage.classList.add('hidden');
+                    if (noContactMessage) {
+                        noContactMessage.classList.add('hidden');
+                    }
+                    
+                    // Clear loading and populate contacts
+                    if (contactList) {
+                        contactList.innerHTML = '';
+                    }
                     
                     data.contacts.forEach(contact => {
                         const contactItem = document.createElement('div');
                         contactItem.className = 'flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors';
                         
-                        contactItem.innerHTML = `
-                            <div class="flex-shrink-0">
-                                ${contact.icon}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-white font-medium">${contact.name}</div>
-                                <div class="text-gray-400 text-sm">${contact.description}</div>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <a href="${contact.url}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Buka
-                                </a>
-                            </div>
-                        `;
+                        // Check if it's an email (mailto:) link
+                        const isEmail = contact.url && contact.url.startsWith('mailto:');
+                        const emailAddress = isEmail ? contact.url.replace('mailto:', '') : '';
                         
-                        contactList.appendChild(contactItem);
+                        if (isEmail) {
+                            // For email, create button that shows modal
+                            contactItem.innerHTML = `
+                                <div class="flex-shrink-0">
+                                    ${contact.icon}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-medium">${contact.name}</div>
+                                    <div class="text-gray-400 text-sm">${contact.description}</div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <button onclick="showEmailModal('${emailAddress}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                        </svg>
+                                        Buka
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            // For other contacts, use normal link
+                            contactItem.innerHTML = `
+                                <div class="flex-shrink-0">
+                                    ${contact.icon}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-medium">${contact.name}</div>
+                                    <div class="text-gray-400 text-sm">${contact.description}</div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="${contact.url}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                        Buka
+                                    </a>
+                                </div>
+                            `;
+                        }
+                        
+                        if (contactList) {
+                            contactList.appendChild(contactItem);
+                        }
                     });
                 } else {
-                    contactList.classList.add('hidden');
-                    noContactMessage.classList.remove('hidden');
+                    if (contactList) {
+                        contactList.classList.add('hidden');
+                    }
+                    if (noContactMessage) {
+                        noContactMessage.classList.remove('hidden');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading contact info:', error);
-                document.getElementById('contactList').classList.add('hidden');
-                document.getElementById('noContactMessage').classList.remove('hidden');
+                const contactList = document.getElementById('contactList');
+                const noContactMessage = document.getElementById('noContactMessage');
+                if (contactList) {
+                    contactList.classList.add('hidden');
+                }
+                if (noContactMessage) {
+                    noContactMessage.classList.remove('hidden');
+                }
+            }
+        };
+
+        // Make functions globally available
+        window.showHelpModal = function(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+                helpModal.classList.remove('hidden');
+                // Call loadContactInfo immediately - it's now globally available
+                window.loadContactInfo();
+            }
+            return false;
+        };
+
+        window.hideHelpModal = function() {
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        };
+
+        // Email Modal Functions
+        window.showEmailModal = function(emailAddress) {
+            const emailModal = document.getElementById('emailModal');
+            const emailDisplay = document.getElementById('emailAddressDisplay');
+            const emailClientLink = document.getElementById('openEmailClientLink');
+            const copySuccess = document.getElementById('emailCopySuccess');
+            
+            if (emailModal && emailDisplay && emailClientLink) {
+                emailDisplay.value = emailAddress;
+                emailClientLink.href = 'mailto:' + emailAddress;
+                copySuccess.classList.add('hidden');
+                emailModal.classList.remove('hidden');
+            }
+        };
+
+        window.hideEmailModal = function() {
+            const emailModal = document.getElementById('emailModal');
+            if (emailModal) {
+                emailModal.classList.add('hidden');
+            }
+        };
+
+        function copyEmailAddress() {
+            const emailDisplay = document.getElementById('emailAddressDisplay');
+            const copySuccess = document.getElementById('emailCopySuccess');
+            const copyBtn = document.getElementById('copyEmailBtn');
+            
+            if (emailDisplay) {
+                emailDisplay.select();
+                emailDisplay.setSelectionRange(0, 99999); // For mobile devices
+                
+                try {
+                    navigator.clipboard.writeText(emailDisplay.value).then(() => {
+                        if (copySuccess) {
+                            copySuccess.classList.remove('hidden');
+                            setTimeout(() => {
+                                copySuccess.classList.add('hidden');
+                            }, 3000);
+                        }
+                    }).catch(() => {
+                        // Fallback for older browsers
+                        document.execCommand('copy');
+                        if (copySuccess) {
+                            copySuccess.classList.remove('hidden');
+                            setTimeout(() => {
+                                copySuccess.classList.add('hidden');
+                            }, 3000);
+                        }
+                    });
+                } catch (err) {
+                    // Fallback
+                    document.execCommand('copy');
+                    if (copySuccess) {
+                        copySuccess.classList.remove('hidden');
+                        setTimeout(() => {
+                            copySuccess.classList.add('hidden');
+                        }, 3000);
+                    }
+                }
             }
         }
 
-        // Close modal when clicking outside
-        document.getElementById('helpModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideHelpModal();
+        // Setup help modal event listeners after DOM is ready
+        function setupHelpModalListeners() {
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+                // Close modal when clicking outside
+                helpModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideHelpModal();
+                    }
+                });
             }
-        });
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideHelpModal();
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideHelpModal();
+                    hideEmailModal();
+                }
+            });
+            
+            // Close email modal when clicking outside
+            const emailModal = document.getElementById('emailModal');
+            if (emailModal) {
+                emailModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        hideEmailModal();
+                    }
+                });
             }
-        });
+        }
+        
+        // Setup listeners when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupHelpModalListeners);
+        } else {
+            setupHelpModalListeners();
+        }
 
-        // Quick select scroll functionality
+        // Optimized scroll functionality with throttling
+        let scrollTimeout;
+        let isScrolling = false;
+        
         function scrollQuickSelect(direction) {
-            const scrollContainer = document.getElementById('quickScroll');
+            if (isScrolling) return; // Prevent multiple scrolls
+            
+            const scrollContainer = getCachedElement('quickScroll');
+            if (!scrollContainer) return;
+            
+            isScrolling = true;
+            
             // Responsive scroll amount: smaller on mobile, larger on desktop
-            const isMobile = window.innerWidth < 640; // sm breakpoint
+            const isMobile = window.innerWidth < 640;
             const scrollAmount = isMobile ? 200 : 300;
             
             if (direction === 'left') {
@@ -570,37 +1225,65 @@
                 scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
             }
             
-            // Update button visibility after scroll
-            setTimeout(updateScrollButtons, 100);
+            // Reset scrolling flag after animation
+            setTimeout(() => {
+                isScrolling = false;
+            }, 300);
+            
+            // Throttled button update
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(updateScrollButtons, 150);
         }
         
+        // Throttled updateScrollButtons function
+        let lastScrollUpdate = 0;
         function updateScrollButtons() {
-            const scrollContainer = document.getElementById('quickScroll');
-            const leftBtn = document.getElementById('scrollLeftBtn');
-            const rightBtn = document.getElementById('scrollRightBtn');
+            const now = Date.now();
+            if (now - lastScrollUpdate < 100) return; // Throttle to max 10fps
+            lastScrollUpdate = now;
+            
+            const scrollContainer = getCachedElement('quickScroll');
+            const leftBtn = getCachedElement('scrollLeftBtn');
+            const rightBtn = getCachedElement('scrollRightBtn');
             
             if (!scrollContainer || !leftBtn || !rightBtn) return;
             
             const scrollLeft = scrollContainer.scrollLeft;
             const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
             
-            // Show/hide left button
-            if (scrollLeft <= 0) {
-                leftBtn.style.opacity = '0.5';
-                leftBtn.style.pointerEvents = 'none';
-            } else {
-                leftBtn.style.opacity = '1';
-                leftBtn.style.pointerEvents = 'auto';
+            // Check if scrolling is needed
+            const needsScroll = maxScroll > 10;
+            
+            if (!needsScroll) {
+                leftBtn.classList.add('hidden');
+                rightBtn.classList.add('hidden');
+                return;
             }
             
-            // Show/hide right button
-            if (scrollLeft >= maxScroll - 10) { // 10px tolerance
-                rightBtn.style.opacity = '0.5';
-                rightBtn.style.pointerEvents = 'none';
-            } else {
-                rightBtn.style.opacity = '1';
-                rightBtn.style.pointerEvents = 'auto';
-            }
+            // Show both buttons if scroll is needed
+            leftBtn.classList.remove('hidden');
+            rightBtn.classList.remove('hidden');
+            
+            // Batch DOM updates
+            requestAnimationFrame(() => {
+                // Left button state
+                if (scrollLeft <= 0) {
+                    leftBtn.style.opacity = '0.5';
+                    leftBtn.style.pointerEvents = 'none';
+                } else {
+                    leftBtn.style.opacity = '1';
+                    leftBtn.style.pointerEvents = 'auto';
+                }
+                
+                // Right button state
+                if (scrollLeft >= maxScroll - 10) {
+                    rightBtn.style.opacity = '0.5';
+                    rightBtn.style.pointerEvents = 'none';
+                } else {
+                    rightBtn.style.opacity = '1';
+                    rightBtn.style.pointerEvents = 'auto';
+                }
+            });
         }
 
          // Live feed auto-refresh (activities only)
@@ -664,6 +1347,7 @@
 
          // Global variable for tracking stock
          let lastStock = {{ $robuxStock ?? 100000 }};
+         let lastGroupStock = {{ $groupRobuxStock ?? 50000 }};
 
          // Update last refresh time display
          function updateLastRefreshTime(status = 'success') {
@@ -700,11 +1384,12 @@
          function updateStockFromData(stockData) {
              console.log('📊 Stock data received:', stockData);
              console.log('📊 Current lastStock:', lastStock);
+             console.log('📊 Current lastGroupStock:', lastGroupStock);
              
+             // Update regular stock (Gamepass)
              if (stockData.current_stock !== lastStock) {
                  const change = stockData.current_stock - lastStock;
                  console.log('📊 Stock changed:', lastStock, '->', stockData.current_stock, 'change:', change);
-                 console.log('📊 Validation: lastStock + change =', lastStock + change, 'should equal newStock:', stockData.current_stock);
                  
                  // Update stock display with animation (pass the actual change)
                  if (window.updateStockDisplay) {
@@ -719,9 +1404,28 @@
              } else {
                  console.log('📊 No stock change detected');
              }
+             
+             // Update group stock
+             if (stockData.group_stock && stockData.group_stock.current_stock !== lastGroupStock) {
+                 const groupChange = stockData.group_stock.current_stock - lastGroupStock;
+                 console.log('📊 Group stock changed:', lastGroupStock, '->', stockData.group_stock.current_stock, 'change:', groupChange);
+                 
+                 // Update group stock display with animation
+                 if (window.updateGroupStockDisplay) {
+                     window.updateGroupStockDisplay(stockData.group_stock.current_stock, groupChange);
          }
 
-         // Update stock status badges
+                 // Update lastGroupStock after animation starts
+                 lastGroupStock = stockData.group_stock.current_stock;
+                 
+                 // Update group stock status badges
+                 updateGroupStockStatus(stockData.group_stock);
+             } else {
+                 console.log('📊 No group stock change detected');
+             }
+         }
+
+         // Update stock status badges (Gamepass)
          function updateStockStatus(data) {
              const stockContainer = document.querySelector('.rounded-xl.border.border-white\\/20.p-5.bg-white\\/10');
              if (stockContainer) {
@@ -733,10 +1437,43 @@
                      statusBadge.className = 'text-xs px-2 py-1 rounded';
                      if (data.is_low) {
                          statusBadge.classList.add('bg-red-500/20', 'text-red-300', 'border', 'border-red-500/30');
-                         statusBadge.textContent = 'Low Stock';
+                         statusBadge.textContent = 'Low';
                      } else if (data.status === 'high') {
                          statusBadge.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border', 'border-emerald-500/30');
-                         statusBadge.textContent = 'High Stock';
+                         statusBadge.textContent = 'High';
+                     } else {
+                         statusBadge.classList.add('bg-blue-500/20', 'text-blue-300', 'border', 'border-blue-500/30');
+                         statusBadge.textContent = 'Normal';
+                     }
+                 }
+                 
+                 // Update low stock warning
+                 if (lowStockWarning) {
+                     if (data.is_low) {
+                         lowStockWarning.classList.remove('hidden');
+                     } else {
+                         lowStockWarning.classList.add('hidden');
+                     }
+                 }
+             }
+         }
+
+         // Update group stock status badges
+         function updateGroupStockStatus(data) {
+             const groupStockContainer = document.querySelector('.rounded-xl.border.border-purple-500\\/30.p-5.bg-purple-500\\/5');
+             if (groupStockContainer) {
+                 const statusBadge = groupStockContainer.querySelector('.text-xs.px-2.py-1.rounded');
+                 const lowStockWarning = groupStockContainer.querySelector('.mt-2.text-xs.text-red-300');
+                 
+                 // Update status badge
+                 if (statusBadge) {
+                     statusBadge.className = 'text-xs px-2 py-1 rounded';
+                     if (data.is_low) {
+                         statusBadge.classList.add('bg-red-500/20', 'text-red-300', 'border', 'border-red-500/30');
+                         statusBadge.textContent = 'Low';
+                     } else if (data.status === 'high') {
+                         statusBadge.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border', 'border-emerald-500/30');
+                         statusBadge.textContent = 'High';
                      } else {
                          statusBadge.classList.add('bg-blue-500/20', 'text-blue-300', 'border', 'border-blue-500/30');
                          statusBadge.textContent = 'Normal';
@@ -796,19 +1533,31 @@
                 </div>
             `;
             
-            // Determine product info
+            // Determine product info - simplified logic
             let productText = '';
             let productIcon = '';
             
             if (activity.product_info) {
                 productText = activity.product_info.amount;
-                productIcon = activity.product_info.type === 'robux' 
-                    ? '<img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">'
-                    : '<div class="w-4 h-4 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="text-white text-xs font-bold">P</span></div>';
+                if (activity.product_info.type === 'robux') {
+                    productIcon = '<img src="/assets/images/robux.png" alt="Robux" class="w-5 h-5 opacity-70">';
+                } else {
+                    // For non-robux items, use product image if available
+                    if (activity.product_info.image) {
+                        productIcon = `<img src="${activity.product_info.image}" alt="${activity.game_type}" class="w-6 h-6 rounded object-cover opacity-80">`;
+                    } else {
+                        productIcon = '<div class="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="text-white text-sm font-bold">P</span></div>';
+                    }
+                }
             } else {
                 // Fallback for old data
-                productText = activity.formatted_amount + ' Robux';
-                productIcon = '<img src="/assets/images/robux.png" alt="Robux" class="w-4 h-4 opacity-70">';
+                if (activity.game_type === 'Robux') {
+                    productText = activity.formatted_amount + ' Robux';
+                    productIcon = '<img src="/assets/images/robux.png" alt="Robux" class="w-5 h-5 opacity-70">';
+                } else {
+                    productText = activity.formatted_amount + ' ' + activity.game_type;
+                    productIcon = '<div class="w-6 h-6 rounded bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="text-white text-sm font-bold">P</span></div>';
+                }
             }
             
             div.innerHTML = `
@@ -831,32 +1580,99 @@
             return div;
         }
 
-        // Mobile menu toggle
+        // Enhanced cache and session cleanup for security
+        function clearAllSensitiveData() {
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear localStorage (if any sensitive data stored)
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('order_data');
+            localStorage.removeItem('payment_data');
+            
+            // Clear any cached form data
+            if (typeof Storage !== "undefined") {
+                // Clear any custom cache keys
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('user') || key.includes('order') || key.includes('payment'))) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+            }
+        }
+        
+        // Browser navigation handlers
+        window.addEventListener('beforeunload', function(e) {
+            // Clear all sensitive data when leaving
+            clearAllSensitiveData();
+        });
+        
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(e) {
+            // Clear all cached data when navigating back
+            clearAllSensitiveData();
+            // Refresh page to ensure clean state
+            window.location.reload();
+        });
+        
+        // Prevent form resubmission on refresh
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+        
+        // Clear data on page load for security
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
+            // Clear any leftover sensitive data
+            clearAllSensitiveData();
+        });
+        
+        // Optimized DOMContentLoaded with debouncing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = getCachedElement('mobile-menu-btn');
+            const mobileMenu = getCachedElement('mobile-menu');
             
             if (mobileMenuBtn && mobileMenu) {
                 mobileMenuBtn.addEventListener('click', function() {
                     mobileMenu.classList.toggle('hidden');
                 });
                 
-                // Close menu when clicking outside
+                // Close menu when clicking outside (throttled)
+                let clickTimeout;
                 document.addEventListener('click', function(event) {
-                    if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-                        mobileMenu.classList.add('hidden');
-                    }
+                    clearTimeout(clickTimeout);
+                    clickTimeout = setTimeout(() => {
+                        if (!mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    }, 10);
                 });
             }
             
-            // Initialize scroll buttons
-            const scrollContainer = document.getElementById('quickScroll');
+            // Initialize scroll buttons with optimized event listeners
+            const scrollContainer = getCachedElement('quickScroll');
             if (scrollContainer) {
-                // Update buttons on scroll
-                scrollContainer.addEventListener('scroll', updateScrollButtons);
+                // Throttled scroll listener
+                let scrollThrottle;
+                scrollContainer.addEventListener('scroll', function() {
+                    clearTimeout(scrollThrottle);
+                    scrollThrottle = setTimeout(updateScrollButtons, 16); // ~60fps
+                });
                 
-                // Initial button state
-                updateScrollButtons();
+                // Initial button state - check after layout is complete
+                requestAnimationFrame(() => {
+                    setTimeout(updateScrollButtons, 50);
+                });
+                
+                // Debounced resize listener
+                let resizeTimeout;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(updateScrollButtons, 100);
+                });
             }
             
             // Initialize live feed refresh
@@ -884,12 +1700,12 @@
                      if (activitiesInterval) clearInterval(activitiesInterval);
                      if (stockInterval) clearInterval(stockInterval);
                      
-                     // Refresh activities every 30 seconds (lebih responsif)
+                     // Refresh activities every 15 seconds (lebih responsif untuk real-time)
                      activitiesInterval = setInterval(() => {
                          if (isPageVisible && !document.hidden) {
                              refreshLiveFeed();
                          }
-                     }, 30000);
+                     }, 15000);
                      
                      // Refresh stock every 15 seconds (lebih responsif)
                      stockInterval = setInterval(() => {
@@ -931,6 +1747,45 @@
                  refreshStock();
             }
         });
+    </script>
+    
+    <!-- Prevent back button if coming from payment page -->
+    <script>
+    (function() {
+        // Check if coming from payment page
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromPayment = urlParams.get('from') === 'payment';
+        
+        if (fromPayment) {
+            // Clear the URL parameter (clean URL)
+            if (window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+            
+            // Clear all history entries to prevent back to payment page
+            // Push multiple states to fill history stack
+            for (let i = 0; i < 5; i++) {
+                history.pushState(null, null, location.href);
+            }
+            
+            // Prevent back button - redirect to home if user tries to go back
+            window.addEventListener('popstate', function(event) {
+                // If user tries to go back, redirect to home again
+                window.location.replace('{{ route("home") }}');
+            });
+            
+            // Also handle onpopstate
+            window.onpopstate = function(event) {
+                window.location.replace('{{ route("home") }}');
+            };
+            
+            // Prevent back on mobile browsers
+            window.addEventListener('focus', function() {
+                // Push state to prevent back
+                history.pushState(null, null, location.href);
+            });
+        }
+    })();
     </script>
 @endsection
 

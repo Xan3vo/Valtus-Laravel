@@ -17,7 +17,7 @@ class PaymentSettingsController extends Controller
     {
         $request->validate([
             'payment_mode' => 'required|in:manual,gateway',
-            'payment_gateway' => 'required_if:payment_mode,gateway|in:none,midtrans,xendit,doku,ipaymu',
+            'payment_gateway' => 'required_if:payment_mode,gateway|in:midtrans', // Hanya Midtrans
             'payment_enabled' => 'boolean',
             
             // Manual settings
@@ -31,25 +31,10 @@ class PaymentSettingsController extends Controller
             'remove_current_image' => 'nullable|string',
             
             // Midtrans settings
-            'midtrans_server_key' => 'nullable|string|max:255',
-            'midtrans_client_key' => 'nullable|string|max:255',
+            'midtrans_server_key' => 'required_if:payment_mode,gateway|nullable|string|max:255',
+            'midtrans_client_key' => 'required_if:payment_mode,gateway|nullable|string|max:255',
             'midtrans_merchant_id' => 'nullable|string|max:255',
-            'midtrans_environment' => 'nullable|in:sandbox,production',
-            
-            // Xendit settings
-            'xendit_secret_key' => 'nullable|string|max:255',
-            'xendit_public_key' => 'nullable|string|max:255',
-            'xendit_environment' => 'nullable|in:sandbox,production',
-            
-            // DOKU settings
-            'doku_mall_id' => 'nullable|string|max:255',
-            'doku_shared_key' => 'nullable|string|max:255',
-            'doku_environment' => 'nullable|in:sandbox,production',
-            
-            // iPaymu settings
-            'ipaymu_api_key' => 'nullable|string|max:255',
-            'ipaymu_va' => 'nullable|string|max:255',
-            'ipaymu_environment' => 'nullable|in:sandbox,production',
+            'midtrans_environment' => 'required_if:payment_mode,gateway|nullable|in:sandbox,production',
         ]);
 
         // Handle QRIS image upload
@@ -82,7 +67,7 @@ class PaymentSettingsController extends Controller
         // Update payment settings
         $settings = [
             'payment_mode' => $request->payment_mode,
-            'payment_gateway' => $request->payment_gateway ?? 'none',
+            'payment_gateway' => $request->payment_mode === 'gateway' ? 'midtrans' : 'none', // Otomatis set ke midtrans jika gateway mode
             'payment_enabled' => '1', // Always keep payment enabled when settings are saved
             
             // Manual settings - ensure no null values
@@ -100,21 +85,6 @@ class PaymentSettingsController extends Controller
             'midtrans_client_key' => $request->midtrans_client_key ?? '',
             'midtrans_merchant_id' => $request->midtrans_merchant_id ?? '',
             'midtrans_environment' => $request->midtrans_environment ?? 'sandbox',
-            
-            // Xendit settings - ensure no null values
-            'xendit_secret_key' => $request->xendit_secret_key ?? '',
-            'xendit_public_key' => $request->xendit_public_key ?? '',
-            'xendit_environment' => $request->xendit_environment ?? 'sandbox',
-            
-            // DOKU settings - ensure no null values
-            'doku_mall_id' => $request->doku_mall_id ?? '',
-            'doku_shared_key' => $request->doku_shared_key ?? '',
-            'doku_environment' => $request->doku_environment ?? 'sandbox',
-            
-            // iPaymu settings - ensure no null values
-            'ipaymu_api_key' => $request->ipaymu_api_key ?? '',
-            'ipaymu_va' => $request->ipaymu_va ?? '',
-            'ipaymu_environment' => $request->ipaymu_environment ?? 'sandbox',
         ];
 
         foreach ($settings as $key => $value) {

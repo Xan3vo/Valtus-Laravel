@@ -213,41 +213,104 @@
 
                 <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                     <h4 class="text-blue-300 font-medium mb-2">Cara Setup Spreadsheet Otomatis:</h4>
-                    <ol class="text-white/80 text-sm space-y-1 list-decimal list-inside">
-                        <li>Buat Google Spreadsheet baru</li>
-                        <li>Buat header: Order ID | Username | GamePass Link | Amount | Status | Date</li>
-                        <li>Extensions > Apps Script (akan buka tab baru)</li>
-                        <li>Di Apps Script, hapus semua kode di file <code>Code.gs</code></li>
-                        <li>Copy kode dari tombol "View Script" di bawah ini dan paste ke <code>Code.gs</code></li>
-                        <li>Save (Ctrl+S) di Apps Script</li>
-                        <li>Deploy > New deployment > Web app > Execute as: Me, Access: Anyone</li>
-                        <li><strong>Klik "Authorize access"</strong> dan pilih akun Google Anda</li>
-                        <li><strong>Klik "Advanced" > "Go to [Project Name] (unsafe)"</strong> jika muncul peringatan</li>
-                        <li><strong>Klik "Allow"</strong> untuk memberikan izin akses</li>
-                        <li>Setelah deployment berhasil, <strong>copy URL deployment</strong> ke field "Google Apps Script URL"</li>
-                        <li>Copy link spreadsheet ke field "Google Spreadsheet Link"</li>
-                        <li>Aktifkan integrasi spreadsheet</li>
+                    <ol class="text-white/80 text-sm space-y-2 list-decimal list-inside">
+                        <li><strong>Buat Google Spreadsheet baru</strong> atau gunakan spreadsheet yang sudah ada</li>
+                        <li><strong>Header akan dibuat otomatis</strong> oleh Google Apps Script (jika spreadsheet kosong):
+                            <div class="mt-2 p-2 bg-black/30 rounded text-xs font-mono text-green-400">
+                                A1: Order ID | B1: Username | C1: Email | D1: Nama Produk | E1: Amount | F1: Gamepass | G1: Status | H1: Tanggal | I1: Jam
+                            </div>
+                            <p class="text-white/60 text-xs mt-1 ml-4">Penjelasan kolom:
+                                <br>• <strong>Order ID</strong>: ID unik pesanan (contoh: ABC123)
+                                <br>• <strong>Username</strong>: Username Roblox customer
+                                <br>• <strong>Email</strong>: Email customer untuk menghubungi (untuk notifikasi dan follow-up)
+                                <br>• <strong>Nama Produk</strong>: "Robux" untuk Robux, nama produk untuk lainnya
+                                <br>• <strong>Amount</strong>: Format ribuan penuh sebagai text (contoh: 1.000, 10.000, 100.000) - tidak akan disingkat oleh Google Sheets
+                                <br>• <strong>Gamepass</strong>: Link gamepass untuk Via Gamepass, "Group" untuk Via Group, "-" untuk produk other
+                                <br>• <strong>Status</strong>: Status pesanan (pending, completed, dll)
+                                <br>• <strong>Tanggal</strong>: Format tanggal-bulan-tahun (contoh: 11-04-2004) dalam waktu WIB
+                                <br>• <strong>Jam</strong>: Format jam:menit:detik (contoh: 14:30:45) dalam waktu WIB
+                            </p>
+                            <p class="text-yellow-300 text-xs mt-1 ml-4 font-medium">💡 Tip: Jika spreadsheet sudah ada header, Apps Script akan menggunakan header yang ada. Pastikan format header sesuai!</p>
+                        </li>
+                        <li><strong>Extensions > Apps Script</strong> (akan buka tab baru)</li>
+                        <li>Di Apps Script, <strong>hapus semua kode</strong> di file <code>Code.gs</code></li>
+                        <li><strong>Copy kode lengkap</strong> dari tombol "View Script" atau "Download Script" di bawah ini</li>
+                        <li><strong>Paste kode</strong> ke <code>Code.gs</code> di Apps Script</li>
+                        <li><strong>Save</strong> (Ctrl+S atau Cmd+S) di Apps Script</li>
+                        <li><strong>Deploy > New deployment</strong> (atau edit deployment yang sudah ada)</li>
+                        <li>Pilih <strong>Type: Web app</strong></li>
+                        <li>Set <strong>Execute as: Me</strong></li>
+                        <li>Set <strong>Who has access: Anyone</strong></li>
+                        <li><strong>Klik "Deploy"</strong></li>
+                        <li><strong>Klik "Authorize access"</strong> dan pilih akun Google yang sama dengan spreadsheet</li>
+                        <li><strong>Klik "Advanced" > "Go to [Project Name] (unsafe)"</strong> jika muncul peringatan keamanan</li>
+                        <li><strong>Klik "Allow"</strong> untuk memberikan izin akses ke Google Sheets</li>
+                        <li>Setelah deployment berhasil, <strong>copy URL deployment</strong> (URL yang panjang)</li>
+                        <li><strong>Paste URL</strong> ke field "Google Apps Script URL" di atas</li>
+                        <li><strong>Copy link spreadsheet</strong> (URL spreadsheet) ke field "Google Spreadsheet Link"</li>
+                        <li><strong>Aktifkan checkbox</strong> "Aktifkan integrasi spreadsheet"</li>
+                        <li><strong>Klik "Save Settings"</strong></li>
                     </ol>
-                    <p class="text-white/60 text-xs mt-2">Setiap pesanan yang disetujui akan otomatis masuk ke spreadsheet!</p>
+                    <p class="text-white/60 text-xs mt-3">✅ <strong>Setiap pesanan yang disetujui (Manual) atau berhasil dibayar (Midtrans) akan otomatis masuk ke spreadsheet!</strong></p>
+                    <p class="text-emerald-300 text-xs mt-2 font-medium">📊 Format data yang masuk: 
+                        <br>• <strong>Manual Payment:</strong> Masuk setelah admin approve pembayaran
+                        <br>• <strong>Midtrans Payment:</strong> Masuk otomatis setelah webhook menerima notifikasi pembayaran berhasil
+                        <br>• <strong>Format:</strong> Order ID, Username, Email, Nama Produk, Amount (format ribuan penuh), Gamepass (link/Group/-), Status, Tanggal (dd-mm-yyyy WIB), Jam (HH:mm:ss WIB)
+                    </p>
                     
                     <div class="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                        <p class="text-yellow-200 text-xs font-medium mb-1">💡 Tips:</p>
+                        <p class="text-yellow-200 text-xs font-medium mb-1">💡 Tips & Troubleshooting:</p>
                         <ul class="text-yellow-100 text-xs space-y-1 list-disc list-inside">
                             <li>File <code>Code.gs</code> adalah file default di Google Apps Script</li>
-                            <li>Hapus semua kode yang ada di <code>Code.gs</code> dan ganti dengan kode dari tombol "View Script"</li>
+                            <li>Hapus semua kode yang ada di <code>Code.gs</code> dan ganti dengan kode dari tombol "View Script" atau "Download Script"</li>
                             <li>Jangan upload file .js, cukup copy-paste kodenya saja</li>
-                            <li>Pastikan spreadsheet di-share dengan "Anyone with the link can edit"</li>
+                            <li>Pastikan spreadsheet di-share dengan <strong>"Anyone with the link can edit"</strong> atau setidaknya memberikan akses ke akun Google yang digunakan untuk Apps Script</li>
+                            <li>Jika ada error, cek <strong>Executions</strong> di Apps Script untuk melihat log error</li>
+                            <li>Jika data tidak masuk, cek log Laravel di <code>storage/logs/laravel.log</code> untuk melihat error detail</li>
+                            <li>Google Apps Script memiliki timeout 30 detik, jika spreadsheet besar mungkin perlu waktu lebih lama</li>
+                            <li>Jika update Apps Script, pastikan deploy ulang dengan <strong>Version: New version</strong> dan copy URL deployment yang baru</li>
                         </ul>
                     </div>
                     
                     <div class="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
-                        <p class="text-orange-200 text-xs font-medium mb-1">⚠️ Proses Authorization:</p>
+                        <p class="text-orange-200 text-xs font-medium mb-1">⚠️ Proses Authorization (PENTING!):</p>
                         <ul class="text-orange-100 text-xs space-y-1 list-disc list-inside">
                             <li>Setelah klik "Deploy", Google akan minta izin akses ke data</li>
-                            <li>Klik "Authorize access" dan pilih akun Google yang sama dengan spreadsheet</li>
-                            <li>Jika muncul peringatan "This app isn't verified", klik "Advanced" > "Go to [Project Name] (unsafe)"</li>
-                            <li>Klik "Allow" untuk memberikan izin akses ke Google Sheets</li>
-                            <li>Setelah berhasil, Anda akan mendapat URL deployment yang panjang</li>
+                            <li><strong>Klik "Authorize access"</strong> dan pilih akun Google yang sama dengan spreadsheet</li>
+                            <li>Jika muncul peringatan <strong>"This app isn't verified"</strong>, jangan panik! Ini normal untuk script pribadi.</li>
+                            <li>Klik <strong>"Advanced"</strong> > <strong>"Go to [Project Name] (unsafe)"</strong></li>
+                            <li>Klik <strong>"Allow"</strong> untuk memberikan izin akses ke Google Sheets</li>
+                            <li>Setelah berhasil, Anda akan mendapat <strong>URL deployment yang panjang</strong> - copy URL ini!</li>
+                            <li>Jika sudah pernah deploy sebelumnya, pilih <strong>"Manage deployments"</strong> > Edit (icon pensil) > <strong>"New version"</strong> > Deploy</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                        <p class="text-green-200 text-xs font-medium mb-1">✅ Fitur Google Apps Script Terbaru (Updated):</p>
+                        <ul class="text-green-100 text-xs space-y-1 list-disc list-inside">
+                            <li>✅ <strong>Kolom Email</strong> - Email customer ditambahkan untuk memudahkan menghubungi customer</li>
+                            <li>✅ <strong>Deduplication</strong> - Mencegah double/triple entry untuk order yang sama (cek Order ID)</li>
+                            <li>✅ <strong>Format Amount Fixed</strong> - Amount ditampilkan format ribuan penuh (1.000, 10.000) tidak disingkat</li>
+                            <li>✅ <strong>Error handling yang lebih baik</strong> - menangani timeout dan error dengan lebih baik</li>
+                            <li>✅ <strong>Auto-create header</strong> - header dibuat otomatis jika spreadsheet kosong</li>
+                            <li>✅ <strong>Format data konsisten</strong> - 9 kolom sesuai format Laravel (termasuk Email)</li>
+                            <li>✅ <strong>Support Manual & Midtrans</strong> - kedua metode pembayaran otomatis masuk</li>
+                            <li>✅ <strong>Retry mechanism</strong> - Laravel akan retry 5x jika gagal (ditingkatkan untuk concurrent users)</li>
+                            <li>✅ <strong>Better logging</strong> - log error detail untuk debugging</li>
+                            <li>✅ <strong>Concurrent request handling</strong> - Support puluhan user sekaligus dengan locking mechanism</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <p class="text-red-200 text-xs font-medium mb-1">⚠️ PENTING - Update Apps Script:</p>
+                        <ul class="text-red-100 text-xs space-y-1 list-disc list-inside">
+                            <li><strong>Jika Anda sudah menggunakan Apps Script sebelumnya, HARUS update script!</strong></li>
+                            <li>Script baru memiliki fitur: <strong>Kolom Email, Deduplication, dan Format Amount yang diperbaiki</strong></li>
+                            <li>Download script baru dari tombol "Download Script" di bawah</li>
+                            <li>Copy-paste script baru ke Apps Script Anda (ganti semua kode lama)</li>
+                            <li>Deploy ulang dengan <strong>Version: New version</strong> dan copy URL deployment yang baru</li>
+                            <li>Tanpa update, Anda akan mengalami bug: amount disingkat, double entry, dan email tidak masuk</li>
+                            <li><strong>Format sekarang: 9 kolom</strong> (tambah Email setelah Username)</li>
                         </ul>
                     </div>
                     
@@ -284,6 +347,119 @@
                     />
                     <span class="text-white/70">Aktifkan integrasi spreadsheet</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Email Configuration -->
+        <div class="rounded-lg border border-white/20 p-6 bg-white/5">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Email Configuration (Gmail SMTP - Gratis!)
+                    </h3>
+                    <p class="text-white/60 text-sm">Konfigurasi email untuk notifikasi pesanan. Email teks sudah dibuat otomatis oleh sistem. <span class="text-green-400 font-medium">100% Gratis dengan Gmail SMTP!</span></p>
+                </div>
+                <div class="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full">
+                    <span class="text-green-400 text-xs font-medium">GRATIS</span>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <label class="block">
+                    <span class="text-white/70">Email Gmail *</span>
+                    <input 
+                        name="gmail_email" 
+                        type="email" 
+                        value="{{ old('gmail_email', $settings['mail_username'] ?? '') }}"
+                        class="mt-2 w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400" 
+                        placeholder="your-email@gmail.com"
+                        required
+                    />
+                    <p class="mt-1 text-white/50 text-sm">Email Gmail Anda (akan digunakan sebagai username dan from address)</p>
+                </label>
+
+                <label class="block">
+                    <span class="text-white/70">App Password Gmail</span>
+                    <div class="relative mt-2">
+                        <input 
+                            id="gmail_app_password"
+                            name="gmail_app_password" 
+                            type="password" 
+                            value=""
+                            class="w-full px-4 py-3 pr-12 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400" 
+                            placeholder="Kosongkan jika tidak ingin mengubah password lama"
+                            autocomplete="new-password"
+                        />
+                        <button 
+                            type="button"
+                            onclick="togglePasswordVisibility('gmail_app_password', 'password_toggle_icon')"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                            aria-label="Toggle password visibility"
+                        >
+                            <svg id="password_toggle_icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-white/50 text-sm">App Password dari Google Account (16 karakter, tanpa spasi). <span class="text-yellow-300 font-medium">Kosongkan jika tidak ingin mengubah password yang sudah ada.</span></p>
+                </label>
+
+                <label class="block">
+                    <span class="text-white/70">Port SMTP *</span>
+                    <select 
+                        name="mail_port" 
+                        class="mt-2 w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+                        required
+                    >
+                        <option value="587" {{ old('mail_port', $settings['mail_port'] ?? '587') == '587' ? 'selected' : '' }}>587 (TLS) - Recommended</option>
+                        <option value="465" {{ old('mail_port', $settings['mail_port'] ?? '587') == '465' ? 'selected' : '' }}>465 (SSL) - Alternatif</option>
+                    </select>
+                    <p class="mt-1 text-white/50 text-sm">Pilih port SMTP. Coba 465 jika 587 tidak berhasil di hosting Anda.</p>
+                </label>
+
+                <label class="block">
+                    <span class="text-white/70">Nama Pengirim *</span>
+                    <input 
+                        name="mail_from_name" 
+                        type="text" 
+                        value="{{ old('mail_from_name', $settings['mail_from_name'] ?? 'Valtus') }}"
+                        class="mt-2 w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400" 
+                        placeholder="Valtus"
+                        required
+                    />
+                    <p class="mt-1 text-white/50 text-sm">Nama yang muncul di email sebagai pengirim</p>
+                </label>
+            </div>
+            
+            <div class="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p class="text-yellow-300 text-sm font-medium mb-2">📌 Cara Mendapatkan App Password Gmail:</p>
+                <ol class="text-white/70 text-xs space-y-1 list-decimal pl-5">
+                    <li>Pastikan Anda sudah mengaktifkan <strong>2-Step Verification</strong> di akun Google Anda</li>
+                    <li>Buka <a href="https://myaccount.google.com/apppasswords?rapt=AEjHL4Octi6uDhp-fJAoN9n2kjvJgzuuoYDMs0pDfuNM7Q2JrNVe4kx18H4j3sSk5DEkbDTVqmay6AcZ3X14Xx-w2wqZmsS03fcpgbxLOcmbEB-DgwbMig0" target="_blank" class="text-emerald-400 hover:underline font-medium">Link App Passwords</a> (akan langsung ke halaman App Passwords)</li>
+                    <li>Pilih <strong>Mail</strong> dan <strong>Other (Custom name)</strong>, ketik "Valtus"</li>
+                    <li>Klik <strong>Generate</strong></li>
+                    <li>Salin <strong>16-digit password</strong> yang muncul (tanpa spasi)</li>
+                    <li>Paste di field "App Password" di atas</li>
+                </ol>
+            </div>
+            
+            <div class="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <p class="text-blue-300 text-sm font-medium mb-2">⚙️ Konfigurasi Otomatis:</p>
+                <ul class="text-white/70 text-xs space-y-1 list-disc pl-5">
+                    <li><strong>MAIL_MAILER:</strong> smtp</li>
+                    <li><strong>MAIL_HOST:</strong> smtp.gmail.com</li>
+                    <li><strong>MAIL_PORT:</strong> 587 (TLS) atau 465 (SSL) - sesuai pilihan Anda</li>
+                    <li><strong>MAIL_ENCRYPTION:</strong> Otomatis (TLS untuk port 587, SSL untuk port 465)</li>
+                    <li><strong>MAIL_USERNAME:</strong> Email Gmail yang Anda masukkan</li>
+                    <li><strong>MAIL_PASSWORD:</strong> App Password (16 karakter)</li>
+                    <li><strong>MAIL_FROM_ADDRESS:</strong> Email Gmail yang Anda masukkan</li>
+                    <li><strong>MAIL_FROM_NAME:</strong> Nama pengirim yang Anda masukkan</li>
+                </ul>
+                <p class="text-white/60 text-xs mt-2">💡 Konfigurasi disimpan ke database. <strong>.env tidak diperlukan untuk email config!</strong> Jika port 587 gagal, coba pakai 465.</p>
             </div>
         </div>
 
@@ -343,6 +519,12 @@
                 <div class="p-4 bg-white/10 rounded-lg border border-white/20">
                     <div class="text-white/60 text-sm">WhatsApp</div>
                     <div class="text-white text-lg font-bold">{{ $settings['whatsapp_number'] ?? 'Not set' }}</div>
+                </div>
+                <div class="p-4 bg-white/10 rounded-lg border border-white/20">
+                    <div class="text-white/60 text-sm">Group Min Order</div>
+                    <div class="text-white text-lg font-bold">
+                        {{ $settings['group_robux_min_order'] ?? 'Not set' }} RBX
+                    </div>
                 </div>
             </div>
         </div>
@@ -520,13 +702,23 @@ function hideScriptModal() {
 }
 
 function loadScriptCode() {
+    const codeElement = document.getElementById('scriptCode');
+    codeElement.textContent = 'Loading...';
+    
     fetch('{{ route("admin.settings.view-script") }}')
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load script: ' + response.status + ' ' + response.statusText);
+            }
+            return response.text();
+        })
         .then(data => {
-            document.getElementById('scriptCode').textContent = data;
+            codeElement.textContent = data;
+            codeElement.style.color = '#4ade80'; // Reset to green color on success
         })
         .catch(error => {
-            document.getElementById('scriptCode').textContent = 'Error loading script: ' + error.message;
+            codeElement.textContent = 'Error loading script: ' + error.message + '\n\nPlease check:\n1. Route is accessible\n2. File google-apps-script.js exists\n3. Check browser console for details';
+            codeElement.style.color = '#ef4444'; // red color for error
         });
 }
 
@@ -608,5 +800,27 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleSpreadsheetButton(scriptUrlInput, 'bg-green-600 hover:bg-green-700', 'Test Apps Script', 'external-link');
     }
 });
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        // Eye off icon (hidden)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+        `;
+    } else {
+        input.type = 'password';
+        // Eye icon (visible)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        `;
+    }
+}
 </script>
+
 @endsection

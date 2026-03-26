@@ -24,7 +24,7 @@
                     
                     <!-- Products Dropdown -->
                     <div class="relative group">
-                        <button class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 {{ request()->routeIs('admin.products*') || request()->routeIs('admin.robux-pricing*') ? 'bg-gray-700 text-white' : '' }}">
+                        <button class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 {{ request()->routeIs('admin.products*') || request()->routeIs('admin.robux-pricing*') || request()->routeIs('admin.group-robux-settings*') ? 'bg-gray-700 text-white' : '' }}">
                             Products
                             <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -35,6 +35,12 @@
                                 <a href="{{ route('admin.robux-pricing') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.robux-pricing*') ? 'bg-gray-700 text-white' : '' }}">
                                     <img src="/assets/images/robux.png" alt="Robux" class="h-3.5 w-3.5">
                                     Robux Pricing
+                                </a>
+                                <a href="{{ route('admin.group-robux-settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.group-robux-settings*') ? 'bg-gray-700 text-white' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    Robux Group Settings
                                 </a>
                                 <a href="{{ route('admin.products') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.products*') ? 'bg-gray-700 text-white' : '' }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,11 +59,22 @@
                     <a href="{{ route('admin.payments') }}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.payments*') ? 'bg-gray-700 text-white' : '' }}">
                         Payments
                     </a>
+
+                    <a href="{{ route('admin.blacklists') }}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.blacklists*') ? 'bg-gray-700 text-white' : '' }}">
+                        Blacklist
+                    </a>
+
+                    <a href="{{ route('admin.activity-history') }}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.activity-history') ? 'bg-gray-700 text-white' : '' }}">
+                        Histori Aktivitas
+                    </a>
                     
+                    <a href="{{ route('admin.admins.index') }}" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.admins*') ? 'bg-gray-700 text-white' : '' }}">
+                        Admins
+                    </a>
                     
                     <!-- Settings Dropdown -->
                     <div class="relative group">
-                        <button class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.payment-settings*') || request()->routeIs('admin.media*') ? 'bg-gray-700 text-white' : '' }}">
+                        <button class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 {{ request()->routeIs('admin.settings*') || request()->routeIs('admin.payment-settings*') || request()->routeIs('admin.media*') || request()->routeIs('admin.promo-codes*') || request()->routeIs('admin.email-test*') ? 'bg-gray-700 text-white' : '' }}">
                             Settings
                             <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -72,6 +89,30 @@
                                     </svg>
                                     General Settings
                                 </a>
+                                <a href="{{ route('admin.announcement') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.announcement*') ? 'bg-gray-700 text-white' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h10M5 6h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                                    </svg>
+                                    Announcement
+                                </a>
+                                <a href="{{ route('admin.promo-codes') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.promo-codes*') ? 'bg-gray-700 text-white' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Promo Codes
+                                </a>
+                                <a href="{{ route('admin.referral-codes') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.referral-codes*') ? 'bg-gray-700 text-white' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                    Referral Codes
+                                </a>
+                                {{-- <a href="{{ route('admin.email-test') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.email-test*') ? 'bg-gray-700 text-white' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Email Test
+                                </a> --}}
                                 <a href="{{ route('admin.payment-settings') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 {{ request()->routeIs('admin.payment-settings*') ? 'bg-gray-700 text-white' : '' }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
@@ -101,7 +142,7 @@
         <div class="flex items-center">
                 <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors duration-200">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors duration-200" onclick="return confirm('Yakin ingin logout?')">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
@@ -118,7 +159,7 @@
                 <div class="flex items-center gap-3">
                     <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1" onclick="return confirm('Yakin ingin logout?')">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
@@ -143,6 +184,12 @@
                         <img src="/assets/images/robux.png" alt="Robux" class="h-4 w-4">
                         Robux Pricing
                     </a>
+                    <a href="{{ route('admin.group-robux-settings') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.group-robux-settings*') ? 'bg-gray-700 text-white' : '' }} flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Robux Group Settings
+                    </a>
                     <a href="{{ route('admin.products') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.products*') ? 'bg-gray-700 text-white' : '' }}">
                         Products
                     </a>
@@ -152,8 +199,32 @@
                     <a href="{{ route('admin.payments') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.payments*') ? 'bg-gray-700 text-white' : '' }}">
                         Payments
                     </a>
+                    <a href="{{ route('admin.blacklists') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.blacklists*') ? 'bg-gray-700 text-white' : '' }}">
+                        Blacklist
+                    </a>
+                    <a href="{{ route('admin.activity-history') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.activity-history') ? 'bg-gray-700 text-white' : '' }}">
+                        Histori Aktivitas
+                    </a>
+                    <a href="{{ route('admin.admins.index') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.admins*') ? 'bg-gray-700 text-white' : '' }}">
+                        Admins
+                    </a>
                     <a href="{{ route('admin.settings') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.settings') ? 'bg-gray-700 text-white' : '' }}">
                         Settings
+                    </a>
+                    <a href="{{ route('admin.announcement') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.announcement*') ? 'bg-gray-700 text-white' : '' }}">
+                        Announcement
+                    </a>
+                    <a href="{{ route('admin.promo-codes') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.promo-codes*') ? 'bg-gray-700 text-white' : '' }} flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Promo Codes
+                    </a>
+                    <a href="{{ route('admin.referral-codes') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.referral-codes*') ? 'bg-gray-700 text-white' : '' }} flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Referral Codes
                     </a>
                     <a href="{{ route('admin.payment-settings') }}" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.payment-settings*') ? 'bg-gray-700 text-white' : '' }}">
                         Payment Settings

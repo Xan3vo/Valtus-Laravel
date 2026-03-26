@@ -5,11 +5,13 @@ $proofUploadedAt = $notes['proof_uploaded_at'] ?? null;
 $confirmedAt = $notes['confirmed_at'] ?? null;
 $adminNotes = $notes['admin_notes'] ?? null;
 
-// Determine actual order status based on completed_at
+// Determine actual order status based on order_status and completed_at
 $isActuallyCompleted = false;
 $timeRemaining = null;
+$showProcessing = false;
 
-if (strtolower($order->order_status) === 'completed' && $order->completed_at && strtolower($order->payment_status) === 'completed') {
+// Check if order_status is completed and if completed_at has passed
+if (strtolower($order->order_status) === 'completed' && $order->completed_at) {
     $completedAt = \Carbon\Carbon::parse($order->completed_at);
     $now = \Carbon\Carbon::now();
     
@@ -17,38 +19,34 @@ if (strtolower($order->order_status) === 'completed' && $order->completed_at && 
         $isActuallyCompleted = true;
     } else {
         $timeRemaining = $now->diff($completedAt);
+        $showProcessing = true;
     }
 }
 
-$orderStatus = $order->payment_status;
 $orderStatusText = '';
 $orderStatusColor = '';
 
 if ($isActuallyCompleted) {
     $orderStatusText = 'Selesai';
     $orderStatusColor = 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30';
+} elseif ($order->payment_status === 'pending') {
+    $orderStatusText = 'Menunggu Pembayaran';
+    $orderStatusColor = 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+} elseif ($order->payment_status === 'waiting_confirmation') {
+    $orderStatusText = 'Menunggu Konfirmasi';
+    $orderStatusColor = 'text-blue-400 bg-blue-500/20 border-blue-500/30';
+} elseif ($order->payment_status === 'Failed') {
+    $orderStatusText = 'Ditolak';
+    $orderStatusColor = 'text-red-400 bg-red-500/20 border-red-500/30';
+} elseif (strtolower($order->order_status) === 'pending') {
+    $orderStatusText = 'Pending';
+    $orderStatusColor = 'text-orange-400 bg-orange-500/20 border-orange-500/30';
+} elseif ($showProcessing) {
+    $orderStatusText = 'Sedang diproses';
+    $orderStatusColor = 'text-orange-400 bg-orange-500/20 border-orange-500/30';
 } else {
-    switch($orderStatus) {
-        case 'pending':
-            $orderStatusText = 'Menunggu Pembayaran';
-            $orderStatusColor = 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
-            break;
-        case 'waiting_confirmation':
-            $orderStatusText = 'Menunggu Konfirmasi';
-            $orderStatusColor = 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-            break;
-        case 'completed':
-            $orderStatusText = 'Sedang diproses';
-            $orderStatusColor = 'text-orange-400 bg-orange-500/20 border-orange-500/30';
-            break;
-        case 'failed':
-            $orderStatusText = 'Gagal';
-            $orderStatusColor = 'text-red-400 bg-red-500/20 border-red-500/30';
-            break;
-        default:
-            $orderStatusText = 'Sedang diproses';
-            $orderStatusColor = 'text-orange-400 bg-orange-500/20 border-orange-500/30';
-    }
+    $orderStatusText = ucfirst($order->order_status ?? 'Unknown');
+    $orderStatusColor = 'text-gray-400 bg-gray-500/20 border-gray-500/30';
 }
 @endphp
 
@@ -63,9 +61,26 @@ if ($isActuallyCompleted) {
                         <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500/30 to-blue-500/30 flex items-center justify-center">
                             <img src="/assets/images/robux.png" class="h-6 w-6" alt="Robux">
                         </div>
-                        <div>
-                            <div class="text-white font-semibold text-lg">{{ number_format($order->amount ?? 0, 0, ',', '.') }} Robux</div>
-                            <div class="text-white/60 text-sm">Roblox Digital Currency</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <div class="text-white font-semibold text-lg">{{ number_format($order->amount ?? 0, 0, ',', '.') }} Robux</div>
+                                @if($order->purchase_method === 'group')
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-purple-200 shadow-sm">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        Via Group
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/40 text-emerald-200 shadow-sm">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                        </svg>
+                                        Via Gamepass
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="text-white/60 text-sm mt-1">Roblox Digital Currency</div>
                         </div>
                     @else
                         <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
@@ -106,8 +121,7 @@ if ($isActuallyCompleted) {
                             <div class="h-2 w-2 bg-current rounded-full"></div>
                             <span class="text-sm font-medium">{{ $orderStatusText }}</span>
                         </div>
-                        @if(strtolower($order->payment_status) === 'completed' && !$isActuallyCompleted)
-                           
+                        @if($showProcessing)
                             @if($timeRemaining && ($timeRemaining->days > 0 || $timeRemaining->h > 0 || $timeRemaining->i > 0))
                                 @if($timeRemaining->days > 0)
                                     <div class="mt-1 text-xs text-orange-300">
@@ -172,9 +186,6 @@ if ($isActuallyCompleted) {
                     </svg>
                     Terkirim
                 </div>
-                <a href="/proofs/{{ $order->proof_file }}" target="_blank" class="text-emerald-300 hover:text-emerald-200 text-sm underline">
-                    Lihat Bukti
-                </a>
             </div>
         </div>
         @endif
@@ -230,7 +241,7 @@ if ($isActuallyCompleted) {
                 @endif
                 
                 <!-- Order Processing -->
-                @if($order->order_status === 'completed' && !$isActuallyCompleted)
+                @if($showProcessing)
                 <div class="flex items-center gap-3">
                     <div class="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center">
                         <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -349,11 +360,70 @@ if ($isActuallyCompleted) {
             </div>
         </div>
 
+        <!-- Rejection Information for Failed Orders -->
+        @if($order->payment_status === 'Failed')
+        <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <div class="p-2 rounded-lg bg-red-500/20">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-red-300 font-semibold text-sm mb-2">Pembayaran Ditolak</h4>
+                    <p class="text-red-200 text-sm mb-3">Pembayaran Anda telah ditolak oleh admin. Silakan periksa bukti transfer dan coba lagi.</p>
+                    
+                    @if($adminNotes)
+                    <div class="bg-red-500/20 rounded-lg p-3 mb-3">
+                        <div class="text-red-300 text-xs font-medium mb-1">Catatan Admin:</div>
+                        <div class="text-red-200 text-sm">{{ $adminNotes }}</div>
+                    </div>
+                    @endif
+                    
+                    @if($order->proof_file)
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <span class="text-red-300 text-sm font-medium">Bukti transfer sudah terkirim</span>
+                    </div>
+                    @endif
+                    
+                    <!-- Customer Service Button -->
+                    <div class="bg-red-500/20 rounded-lg p-3">
+                        <div class="flex items-start gap-3">
+                            <div class="p-1.5 rounded-lg bg-red-500/30">
+                                <svg class="w-4 h-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-red-300 text-xs font-medium mb-1">Tidak Setuju dengan Penolakan?</div>
+                                <div class="text-red-200 text-sm mb-3">Jika Anda merasa tidak ada kesalahan dalam bukti transfer, silakan hubungi customer service untuk bantuan lebih lanjut.</div>
+                                <button onclick="showHelpModal(); return false;" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/30 hover:bg-red-500/40 text-red-200 text-sm font-medium transition-colors duration-200 border border-red-500/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                    </svg>
+                                    Hubungi Customer Service
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Action Buttons -->
         <div class="space-y-3">
             @if($order->payment_status === 'pending')
             <a href="{{ route('user.payment-methods') }}" class="block w-full text-center px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-emerald-500/25">
                 Lanjutkan Pembayaran
+            </a>
+            @elseif($order->payment_status === 'Failed')
+            <a href="{{ route('user.search') }}" class="block w-full text-center px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-emerald-500/25">
+                Buat Pesanan Baru
             </a>
             @endif
             

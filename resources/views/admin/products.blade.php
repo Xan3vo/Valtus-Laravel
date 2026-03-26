@@ -49,29 +49,29 @@
     <!-- Products Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="productsGrid">
         @forelse($products as $product)
-        <div class="product-card rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5 hover:bg-white/10 transition-all duration-200" 
+        <div class="product-card rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5 hover:bg-white/10 transition-all duration-200 overflow-hidden" 
              data-name="{{ strtolower($product->name) }}" 
              data-category="{{ strtolower($product->category) }}" 
              data-status="{{ $product->is_active ? 'active' : 'inactive' }}">
             
             <!-- Product Header -->
-            <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     @if($product->image)
-                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover">
+                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover flex-shrink-0">
                     @elseif($product->image_url)
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover flex-shrink-0">
                     @else
-                        <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center">
+                        <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center flex-shrink-0">
                             <img src="/assets/images/robux.png" alt="Product" class="h-6 w-6 sm:h-8 sm:w-8">
                         </div>
                     @endif
                     <div class="min-w-0 flex-1">
-                        <h3 class="text-white font-semibold text-sm sm:text-base truncate">{{ $product->name }}</h3>
-                        <p class="text-white/60 text-xs sm:text-sm">{{ ucfirst($product->category) }} • {{ $product->game_type }}</p>
+                        <h3 class="text-white font-semibold text-sm sm:text-base truncate" title="{{ $product->name }}">{{ Str::limit($product->name, 20) }}</h3>
+                        <p class="text-white/60 text-xs sm:text-sm truncate">{{ ucfirst($product->category) }} • {{ $product->game_type }}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-shrink-0">
                     <span class="px-2 py-1 rounded text-xs {{ $product->is_active ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-gray-500/20 text-gray-300 border border-gray-500/30' }}">
                         {{ $product->is_active ? 'Active' : 'Inactive' }}
                     </span>
@@ -90,28 +90,48 @@
                 </div>
                 <div class="flex justify-between items-center border-t border-white/10 pt-2">
                     <span class="text-emerald-300 font-medium text-xs sm:text-sm">Total Price:</span>
-                    <span class="text-emerald-300 font-bold text-sm sm:text-lg">Rp {{ number_format($product->total_price, 0, ',', '.') }}</span>
+                    <span class="text-emerald-300 font-bold text-sm sm:text-lg">
+                        @if($product->discount_active && $product->final_price < $product->total_price)
+                            <span class="line-through text-white/50 text-xs mr-1">Rp {{ number_format($product->total_price, 0, ',', '.') }}</span>
+                            <span>Rp {{ number_format($product->final_price, 0, ',', '.') }}</span>
+                        @else
+                            Rp {{ number_format($product->total_price, 0, ',', '.') }}
+                        @endif
+                    </span>
                 </div>
+                @if($product->discount_active)
+                    <div class="flex justify-between items-center">
+                        <span class="text-yellow-300 text-xs sm:text-sm">🎉 Diskon:</span>
+                        <span class="text-yellow-300 font-medium text-xs sm:text-sm">
+                            @if($product->discount_method === 'percentage')
+                                {{ number_format($product->discount_value, 0, ',', '.') }}%
+                            @else
+                                Rp {{ number_format($product->discount_value, 0, ',', '.') }}
+                            @endif
+                            ({{ number_format($product->discount_amount, 0, ',', '.') }})
+                        </span>
+                    </div>
+                @endif
                 @if($product->description)
-                    <p class="text-white/50 text-xs sm:text-sm mt-2">{{ Str::limit($product->description, 60) }}</p>
+                    <p class="text-white/50 text-xs sm:text-sm mt-2 whitespace-pre-wrap">{{ Str::limit($product->description, 60) }}</p>
                 @endif
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-2">
-                <a href="{{ route('admin.products.edit', $product) }}" class="flex-1 px-3 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition text-center text-xs sm:text-sm">
+                <a href="{{ route('admin.products.edit', $product) }}" class="flex-1 px-3 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition text-center text-xs sm:text-sm whitespace-nowrap">
                     Edit
                 </a>
                 <form method="POST" action="{{ route('admin.products.toggle-status', $product) }}" class="flex-1">
                     @csrf
-                    <button type="submit" class="w-full px-3 py-2 rounded-lg {{ $product->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white transition text-xs sm:text-sm">
+                    <button type="submit" class="w-full px-3 py-2 rounded-lg {{ $product->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white transition text-xs sm:text-sm whitespace-nowrap">
                         {{ $product->is_active ? 'Deactivate' : 'Activate' }}
                     </button>
                 </form>
                 <form method="POST" action="{{ route('admin.products.destroy', $product) }}" class="flex-1" onsubmit="return confirm('Are you sure you want to delete this product?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="w-full px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition text-xs sm:text-sm">
+                    <button type="submit" class="w-full px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition text-xs sm:text-sm whitespace-nowrap">
                         Delete
                     </button>
                 </form>

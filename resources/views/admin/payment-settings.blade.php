@@ -81,29 +81,33 @@
                                    class="payment-mode-radio w-4 h-4 text-emerald-600 bg-black/30 border-white/20 rounded focus:ring-emerald-500 focus:ring-2">
                             <span class="text-white/90 font-medium">Gateway Otomatis</span>
                         </div>
-                        <p class="text-white/60 text-sm">Integrasi dengan payment gateway (Midtrans, Xendit, dll)</p>
+                        <p class="text-white/60 text-sm">Integrasi dengan payment gateway Midtrans</p>
                     </div>
                 </label>
             </div>
         </div>
 
-        <!-- Payment Gateway Selection -->
+        <!-- Payment Gateway Selection - Midtrans Only -->
         <div id="gateway-section" class="rounded-lg border border-white/20 p-6 bg-white/5" style="display: none;">
-            <h3 class="text-xl font-semibold text-white mb-6">Payment Gateway</h3>
-            
-            <div class="mb-6">
-                <label class="block text-white/70 mb-3">Pilih Payment Gateway</label>
-                <select name="payment_gateway" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">
-                    <option value="none">Pilih Gateway</option>
-                    <option value="midtrans" {{ \App\Models\Setting::getValue('payment_gateway', 'none') === 'midtrans' ? 'selected' : '' }}>Midtrans</option>
-                    <option value="xendit" {{ \App\Models\Setting::getValue('payment_gateway', 'none') === 'xendit' ? 'selected' : '' }}>Xendit</option>
-                    <option value="doku" {{ \App\Models\Setting::getValue('payment_gateway', 'none') === 'doku' ? 'selected' : '' }}>DOKU</option>
-                    <option value="ipaymu" {{ \App\Models\Setting::getValue('payment_gateway', 'none') === 'ipaymu' ? 'selected' : '' }}>iPaymu</option>
-                </select>
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Midtrans Payment Gateway
+                    </h3>
+                    <p class="text-white/60 text-sm">Konfigurasi gateway pembayaran otomatis dengan Midtrans</p>
+                </div>
+                <div class="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full">
+                    <span class="text-emerald-400 text-xs font-medium">AUTOMATIC</span>
+                </div>
             </div>
+            
+            <input type="hidden" name="payment_gateway" value="midtrans">
 
             <!-- Midtrans Settings -->
-            <div id="midtrans-settings" class="gateway-config space-y-6" style="display: none;">
+            <div class="space-y-6">
                 <div class="p-4 bg-white/10 rounded-lg border border-white/20">
                     <h4 class="font-medium text-white/90 mb-4 flex items-center gap-2">
                         <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,139 +115,73 @@
                         </svg>
                         Konfigurasi Midtrans
                     </h4>
-                    <div class="grid md:grid-cols-2 gap-4">
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label class="block text-white/70 mb-2">Server Key</label>
+                            <label class="block text-white/70 mb-2">Server Key *</label>
                             <input type="text" name="midtrans_server_key" 
                                    value="{{ \App\Models\Setting::getValue('midtrans_server_key', '') }}"
                                    class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Server Key">
+                                   placeholder="Masukkan Server Key"
+                                   required>
+                            <p class="mt-1 text-white/50 text-xs">Digunakan untuk backend API calls</p>
                         </div>
                         <div>
-                            <label class="block text-white/70 mb-2">Client Key</label>
+                            <label class="block text-white/70 mb-2">Client Key *</label>
                             <input type="text" name="midtrans_client_key" 
                                    value="{{ \App\Models\Setting::getValue('midtrans_client_key', '') }}"
                                    class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Client Key">
+                                   placeholder="Masukkan Client Key"
+                                   required>
+                            <p class="mt-1 text-white/50 text-xs">Digunakan untuk frontend Snap.js</p>
                         </div>
                         <div>
                             <label class="block text-white/70 mb-2">Merchant ID</label>
                             <input type="text" name="midtrans_merchant_id" 
                                    value="{{ \App\Models\Setting::getValue('midtrans_merchant_id', '') }}"
                                    class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Merchant ID">
+                                   placeholder="Masukkan Merchant ID (opsional)">
+                            <p class="mt-1 text-white/50 text-xs">Opsional, untuk identifikasi merchant</p>
                         </div>
                         <div>
-                            <label class="block text-white/70 mb-2">Environment</label>
-                            <select name="midtrans_environment" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">
+                            <label class="block text-white/70 mb-2">Environment *</label>
+                            <select name="midtrans_environment" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400" required>
                                 <option value="sandbox" {{ \App\Models\Setting::getValue('midtrans_environment', 'sandbox') === 'sandbox' ? 'selected' : '' }}>Sandbox (Testing)</option>
                                 <option value="production" {{ \App\Models\Setting::getValue('midtrans_environment', 'sandbox') === 'production' ? 'selected' : '' }}>Production (Live)</option>
                             </select>
+                            <p class="mt-1 text-white/50 text-xs">Pilih mode: Sandbox untuk testing, Production untuk live</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Xendit Settings -->
-            <div id="xendit-settings" class="gateway-config space-y-6" style="display: none;">
-                <div class="p-4 bg-white/10 rounded-lg border border-white/20">
-                    <h4 class="font-medium text-white/90 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Konfigurasi Xendit
-                    </h4>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white/70 mb-2">Secret Key</label>
-                            <input type="text" name="xendit_secret_key" 
-                                   value="{{ \App\Models\Setting::getValue('xendit_secret_key', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Secret Key">
-                        </div>
-                        <div>
-                            <label class="block text-white/70 mb-2">Public Key</label>
-                            <input type="text" name="xendit_public_key" 
-                                   value="{{ \App\Models\Setting::getValue('xendit_public_key', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Public Key">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-white/70 mb-2">Environment</label>
-                            <select name="xendit_environment" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">
-                                <option value="sandbox" {{ \App\Models\Setting::getValue('xendit_environment', 'sandbox') === 'sandbox' ? 'selected' : '' }}>Sandbox (Testing)</option>
-                                <option value="production" {{ \App\Models\Setting::getValue('xendit_environment', 'sandbox') === 'production' ? 'selected' : '' }}>Production (Live)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- DOKU Settings -->
-            <div id="doku-settings" class="gateway-config space-y-6" style="display: none;">
-                <div class="p-4 bg-white/10 rounded-lg border border-white/20">
-                    <h4 class="font-medium text-white/90 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Konfigurasi DOKU
-                    </h4>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white/70 mb-2">Mall ID</label>
-                            <input type="text" name="doku_mall_id" 
-                                   value="{{ \App\Models\Setting::getValue('doku_mall_id', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Mall ID">
-                        </div>
-                        <div>
-                            <label class="block text-white/70 mb-2">Shared Key</label>
-                            <input type="text" name="doku_shared_key" 
-                                   value="{{ \App\Models\Setting::getValue('doku_shared_key', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Shared Key">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-white/70 mb-2">Environment</label>
-                            <select name="doku_environment" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">
-                                <option value="sandbox" {{ \App\Models\Setting::getValue('doku_environment', 'sandbox') === 'sandbox' ? 'selected' : '' }}>Sandbox (Testing)</option>
-                                <option value="production" {{ \App\Models\Setting::getValue('doku_environment', 'sandbox') === 'production' ? 'selected' : '' }}>Production (Live)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- iPaymu Settings -->
-            <div id="ipaymu-settings" class="gateway-config space-y-6" style="display: none;">
-                <div class="p-4 bg-white/10 rounded-lg border border-white/20">
-                    <h4 class="font-medium text-white/90 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Konfigurasi iPaymu
-                    </h4>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white/70 mb-2">API Key</label>
-                            <input type="text" name="ipaymu_api_key" 
-                                   value="{{ \App\Models\Setting::getValue('ipaymu_api_key', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan API Key">
-                        </div>
-                        <div>
-                            <label class="block text-white/70 mb-2">Virtual Account</label>
-                            <input type="text" name="ipaymu_va" 
-                                   value="{{ \App\Models\Setting::getValue('ipaymu_va', '') }}"
-                                   class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
-                                   placeholder="Masukkan Virtual Account">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-white/70 mb-2">Environment</label>
-                            <select name="ipaymu_environment" class="w-full px-4 py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">
-                                <option value="sandbox" {{ \App\Models\Setting::getValue('ipaymu_environment', 'sandbox') === 'sandbox' ? 'selected' : '' }}>Sandbox (Testing)</option>
-                                <option value="production" {{ \App\Models\Setting::getValue('ipaymu_environment', 'sandbox') === 'production' ? 'selected' : '' }}>Production (Live)</option>
-                            </select>
+                    
+                    <!-- Panduan Cara Mendapatkan Credentials -->
+                    <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                        <p class="text-blue-300 text-sm font-medium mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Cara Mendapatkan Credentials Midtrans
+                        </p>
+                        <ol class="text-white/70 text-xs space-y-2 list-decimal pl-5">
+                            <li>Daftar akun di <a href="https://dashboard.midtrans.com/register" target="_blank" class="text-blue-400 hover:underline font-medium">dashboard.midtrans.com</a> (gratis)</li>
+                            <li>Login ke dashboard Midtrans</li>
+                            <li>Klik <strong>Settings</strong> → <strong>Access Keys</strong></li>
+                            <li>Salin <strong>Server Key</strong> dan paste ke field "Server Key" di atas</li>
+                            <li>Salin <strong>Client Key</strong> dan paste ke field "Client Key" di atas</li>
+                            <li>Untuk <strong>Merchant ID</strong>, bisa ditemukan di Settings → Account → Merchant ID (opsional)</li>
+                            <li>Pilih <strong>Environment</strong>:
+                                <ul class="list-disc pl-5 mt-1 space-y-1">
+                                    <li><strong>Sandbox:</strong> Untuk testing (tidak ada uang real yang ditransfer)</li>
+                                    <li><strong>Production:</strong> Untuk live (transaksi real dengan uang real)</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                            <p class="text-yellow-300 text-xs font-medium mb-1">💡 Tips:</p>
+                            <ul class="text-white/60 text-xs space-y-1 list-disc pl-4">
+                                <li>Gunakan <strong>Sandbox</strong> untuk testing terlebih dahulu sebelum go live</li>
+                                <li>Untuk testing, gunakan kartu kredit testing: <code class="bg-black/30 px-1 rounded">4111 1111 1111 1111</code> (CVV: 123)</li>
+                                <li>Pastikan Server Key dan Client Key sesuai dengan Environment yang dipilih</li>
+                                <li>Setelah go live, pastikan sudah ganti ke <strong>Production</strong> dan gunakan credentials Production</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -359,8 +297,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const paymentModeRadios = document.querySelectorAll('.payment-mode-radio');
     const gatewaySection = document.getElementById('gateway-section');
     const manualSection = document.getElementById('manual-section');
-    const gatewaySelect = document.querySelector('select[name="payment_gateway"]');
-    const gatewayConfigs = document.querySelectorAll('.gateway-config');
     
 
     function toggleSections() {
@@ -369,37 +305,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedMode && selectedMode.value === 'gateway') {
             if (gatewaySection) gatewaySection.style.display = 'block';
             if (manualSection) manualSection.style.display = 'none';
-            // Trigger gateway config update when switching to gateway mode
-            setTimeout(toggleGatewayConfig, 100);
+            // Show Midtrans settings automatically
+            setTimeout(showMidtransSettings, 100);
         } else {
             if (gatewaySection) gatewaySection.style.display = 'none';
             if (manualSection) manualSection.style.display = 'block';
         }
     }
 
-    function toggleGatewayConfig() {
-        if (!gatewaySelect) return;
+    // Show Midtrans settings automatically when gateway mode is selected
+    function showMidtransSettings() {
+        const gatewaySection = document.getElementById('gateway-section');
+        const midtransSettings = document.querySelector('#gateway-section .space-y-6');
         
-        const selectedGateway = gatewaySelect.value;
-        
-        // Hide all gateway configs
-        gatewayConfigs.forEach(config => {
-            config.style.display = 'none';
-        });
-        
-        // Show selected gateway config
-        if (selectedGateway !== 'none') {
-            const selectedConfig = document.getElementById(selectedGateway + '-settings');
-            if (selectedConfig) {
-                selectedConfig.style.display = 'block';
-            }
+        if (gatewaySection && gatewaySection.style.display !== 'none' && midtransSettings) {
+            midtransSettings.style.display = 'block';
         }
     }
 
     // Initial setup - only if elements exist
     if (paymentModeRadios.length > 0) {
         toggleSections();
-        toggleGatewayConfig();
     }
 
     // Event listeners
@@ -407,6 +333,10 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', function() {
             toggleSections();
             updateRadioStyling();
+            // Show Midtrans settings when gateway mode is selected
+            if (radio.value === 'gateway') {
+                setTimeout(showMidtransSettings, 100);
+            }
         });
     });
 
@@ -434,9 +364,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial styling update
     updateRadioStyling();
 
-    // Add event listener for gateway select
-    if (gatewaySelect) {
-        gatewaySelect.addEventListener('change', toggleGatewayConfig);
+    // Show Midtrans settings on initial load if gateway mode is selected
+    const selectedMode = document.querySelector('.payment-mode-radio:checked');
+    if (selectedMode && selectedMode.value === 'gateway') {
+        setTimeout(showMidtransSettings, 100);
     }
 
     // Image upload functionality

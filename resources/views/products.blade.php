@@ -18,8 +18,9 @@
         <nav class="hidden md:flex items-center gap-8 text-sm">
             <a href="{{ route('home') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beranda</a>
             <a href="{{ route('home') }}#topup" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Beli Robux</a>
+            <a href="{{ route('products') }}" class="text-emerald-400 hover:text-emerald-300 transition-colors duration-200 font-medium">Produk</a>
             <a href="{{ route('user.status') }}" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(); return false;" class="text-gray-200 hover:text-white transition-colors duration-200 font-medium">Bantuan</a>
         </nav>
         <!-- Desktop Actions -->
         <div class="hidden md:flex items-center gap-4">
@@ -44,8 +45,9 @@
         <div class="px-4 py-4 space-y-4">
             <a href="{{ route('home') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beranda</a>
             <a href="{{ route('home') }}#topup" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beli Robux</a>
+            <a href="{{ route('products') }}" class="block text-emerald-400 hover:text-emerald-300 transition-colors duration-200 font-medium py-2">Produk</a>
             <a href="{{ route('user.status') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(); return false;" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
         </div>
     </div>
 </header>
@@ -76,11 +78,17 @@
                 <p class="text-gray-400">Filter produk berdasarkan game yang ingin Anda mainkan</p>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
                 <!-- All Games -->
                 <a href="{{ route('products') }}" 
                    class="group relative rounded-xl border-2 transition-all duration-200 overflow-hidden {{ !$gameType ? 'border-emerald-500 bg-emerald-500/10' : 'border-white/20 hover:border-white/40 bg-white/5' }}">
-                    <div class="aspect-square p-4 flex flex-col items-center justify-center text-center">
+                    <!-- Mobile: Text only -->
+                    <div class="sm:hidden p-3 flex flex-col items-center justify-center text-center">
+                        <span class="text-white font-medium text-xs">Semua Game</span>
+                        <span class="text-white/60 text-xs mt-1">{{ $products->total() }}</span>
+                    </div>
+                    <!-- Desktop: Original layout -->
+                    <div class="hidden sm:block aspect-square p-4 flex flex-col items-center justify-center text-center">
                         <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -98,7 +106,13 @@
                 @foreach($gameTypes as $type)
                     <a href="{{ route('products', ['game_type' => $type]) }}" 
                        class="group relative rounded-xl border-2 transition-all duration-200 overflow-hidden {{ $gameType === $type ? 'border-emerald-500 bg-emerald-500/10' : 'border-white/20 hover:border-white/40 bg-white/5' }}">
-                        <div class="aspect-square p-4 flex flex-col items-center justify-center text-center">
+                        <!-- Mobile: Text only -->
+                        <div class="sm:hidden p-3 flex flex-col items-center justify-center text-center">
+                            <span class="text-white font-medium text-xs">{{ $type }}</span>
+                            <span class="text-white/60 text-xs mt-1">{{ \App\Models\Product::where('is_active', true)->where('game_type', $type)->count() }}</span>
+                        </div>
+                        <!-- Desktop: Original layout -->
+                        <div class="hidden sm:block aspect-square p-4 flex flex-col items-center justify-center text-center">
                             @if(isset($gameTypeImages[$type]))
                                 <img src="{{ $gameTypeImages[$type] }}" alt="{{ $type }}" class="w-12 h-12 rounded-lg object-cover mb-3 group-hover:scale-110 transition-transform duration-200">
                             @else
@@ -134,11 +148,11 @@
             @endif
             
             @if($products->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     @foreach($products as $product)
-                        <a href="{{ route('user.product-order', $product->game_type) }}" class="block rounded-xl border border-white/20 p-6 bg-white/5 hover:bg-white/10 transition-all duration-200 group">
+                        <a href="{{ route('user.product-detail', $product->id) }}" class="block rounded-xl border border-white/20 p-3 sm:p-6 bg-white/5 hover:bg-white/10 transition-all duration-200 group">
                             <!-- Product Image -->
-                            <div class="aspect-square rounded-lg overflow-hidden mb-4 bg-gradient-to-br from-white/5 to-white/0">
+                            <div class="aspect-square rounded-lg overflow-hidden mb-2 sm:mb-4 bg-gradient-to-br from-white/5 to-white/0">
                                 @if($product->image)
                                     <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
                                 @elseif($product->image_url)
@@ -153,25 +167,36 @@
                             </div>
 
                             <!-- Product Info -->
-                            <div class="space-y-3">
+                            <div class="space-y-2 sm:space-y-3">
                                 <div>
-                                    <h3 class="text-white font-semibold text-lg">{{ $product->name }}</h3>
-                                    <p class="text-white/60 text-sm">{{ ucfirst($product->category) }} • {{ $product->game_type }}</p>
+                                    <h3 class="text-white font-semibold text-sm sm:text-lg line-clamp-1">{{ $product->name }}</h3>
+                                    <p class="text-white/60 text-xs sm:text-sm">{{ ucfirst($product->category) }} • {{ $product->game_type }}</p>
                                 </div>
 
                                 @if($product->description)
-                                    <p class="text-white/50 text-sm line-clamp-2">{{ $product->description }}</p>
+                                    <p class="text-white/50 text-xs sm:text-sm line-clamp-2 whitespace-pre-wrap hidden sm:block" title="{{ $product->description }}">{{ Str::limit($product->description, 80) }}</p>
                                 @endif
 
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <div class="text-emerald-300 font-bold text-xl">Rp {{ number_format($product->total_price, 0, ',', '.') }}</div>
+                                        @if($product->discount_active && $product->final_price < $product->total_price)
+                                            <div class="text-white/50 line-through text-xs sm:text-sm">Rp {{ number_format($product->total_price, 0, ',', '.') }}</div>
+                                            <div class="text-emerald-300 font-bold text-sm sm:text-xl">Rp {{ number_format($product->final_price, 0, ',', '.') }}</div>
+                                            @if($product->discount_method === 'percentage')
+                                                <div class="text-yellow-300 text-xs font-medium mt-0.5">{{ number_format($product->discount_value, 0, ',', '.') }}% off</div>
+                                            @else
+                                                <div class="text-yellow-300 text-xs font-medium mt-0.5">Diskon Rp {{ number_format($product->discount_value, 0, ',', '.') }}</div>
+                                            @endif
+                                        @else
+                                            <div class="text-emerald-300 font-bold text-sm sm:text-xl">Rp {{ number_format($product->total_price, 0, ',', '.') }}</div>
+                                        @endif
                                         @if($product->tax_rate > 0)
-                                            <div class="text-white/50 text-xs">Termasuk pajak {{ $product->tax_rate }}%</div>
+                                            <div class="text-white/50 text-xs hidden sm:block">Termasuk pajak {{ $product->tax_rate }}%</div>
                                         @endif
                                     </div>
-                                    <div class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-500/30">
-                                        Tersedia
+                                    <div class="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-500/30">
+                                        <span class="hidden sm:inline">Tersedia</span>
+                                        <span class="sm:hidden">✓</span>
                                     </div>
                                 </div>
                             </div>
@@ -226,9 +251,14 @@
 </div>
 
 <script>
-    function showHelpModal() {
+    function showHelpModal(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         document.getElementById('helpModal').classList.remove('hidden');
         loadContactInfo();
+        return false;
     }
 
     function hideHelpModal() {
@@ -237,17 +267,25 @@
 
     async function loadContactInfo() {
         try {
-            const response = await fetch('/api/contact-info');
-            const data = await response.json();
-            
             const contactList = document.getElementById('contactList');
             const noContactMessage = document.getElementById('noContactMessage');
             
-            // Clear previous content
-            contactList.innerHTML = '';
+            // Reset states
+            if (contactList) {
+                contactList.innerHTML = '';
+                contactList.classList.remove('hidden');
+            }
+            if (noContactMessage) {
+                noContactMessage.classList.add('hidden');
+            }
+            
+            const response = await fetch('/api/contact-info');
+            const data = await response.json();
             
             if (data.contacts && data.contacts.length > 0) {
-                noContactMessage.classList.add('hidden');
+                if (noContactMessage) {
+                    noContactMessage.classList.add('hidden');
+                }
                 
                 data.contacts.forEach(contact => {
                     const contactItem = document.createElement('div');
@@ -271,16 +309,28 @@
                         </div>
                     `;
                     
-                    contactList.appendChild(contactItem);
+                    if (contactList) {
+                        contactList.appendChild(contactItem);
+                    }
                 });
             } else {
-                contactList.classList.add('hidden');
-                noContactMessage.classList.remove('hidden');
+                if (contactList) {
+                    contactList.classList.add('hidden');
+                }
+                if (noContactMessage) {
+                    noContactMessage.classList.remove('hidden');
+                }
             }
         } catch (error) {
             console.error('Error loading contact info:', error);
-            document.getElementById('contactList').classList.add('hidden');
-            document.getElementById('noContactMessage').classList.remove('hidden');
+            const contactList = document.getElementById('contactList');
+            const noContactMessage = document.getElementById('noContactMessage');
+            if (contactList) {
+                contactList.classList.add('hidden');
+            }
+            if (noContactMessage) {
+                noContactMessage.classList.remove('hidden');
+            }
         }
     }
 

@@ -25,14 +25,18 @@ class StatusController extends Controller
         }
         
         if ($type === 'id') {
-            // Search by order ID - only show orders with valid order_status
+            // Search by order ID - show orders with payment confirmed OR failed
             $order = Order::where('order_id', $query)
-                ->whereNotNull('order_status')
+                ->whereIn('payment_status', ['Completed', 'waiting_confirmation', 'Failed'])
+                ->where(function($q) {
+                    $q->whereNotNull('order_status')
+                      ->orWhere('payment_status', 'Failed');
+                })
                 ->first();
             
             if (!$order) {
                 return view('user.status', [
-                    'error' => 'Order dengan ID "' . $query . '" tidak ditemukan atau sudah kadaluarsa'
+                    'error' => 'Order dengan ID "' . $query . '" tidak ditemukan'
                 ]);
             }
             
@@ -43,15 +47,19 @@ class StatusController extends Controller
             ]);
             
         } else {
-            // Search by username - only show orders with valid order_status
+            // Search by username - show orders with payment confirmed OR failed
             $orders = Order::where('username', 'like', '%' . $query . '%')
-                ->whereNotNull('order_status')
+                ->whereIn('payment_status', ['Completed', 'waiting_confirmation', 'Failed'])
+                ->where(function($q) {
+                    $q->whereNotNull('order_status')
+                      ->orWhere('payment_status', 'Failed');
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
             
             if ($orders->isEmpty()) {
                 return view('user.status', [
-                    'error' => 'Tidak ada order aktif ditemukan untuk username "' . $query . '"'
+                    'error' => 'Tidak ada order ditemukan untuk username "' . $query . '"'
                 ]);
             }
             
@@ -65,12 +73,11 @@ class StatusController extends Controller
     
     public function show($orderId)
     {
-        $order = Order::where('order_id', $orderId)
-            ->whereNotNull('order_status')
-            ->first();
+        // Find order - allow all statuses including pending (for Midtrans return)
+        $order = Order::where('order_id', $orderId)->first();
         
         if (!$order) {
-            return redirect()->route('user.status')->with('error', 'Order tidak ditemukan atau sudah kadaluarsa');
+            return redirect()->route('user.status')->with('error', 'Order tidak ditemukan');
         }
         
         return view('user.status', [

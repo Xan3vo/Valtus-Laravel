@@ -38,7 +38,12 @@ class Activity extends Model
             ->where('activity_type', 'purchase')
             ->orderBy('processed_at', 'desc')
             ->limit($actualLimit)
-            ->get();
+            ->get()
+            ->map(function($activity) {
+                // Add product info directly here for efficiency
+                $activity->product_info = $activity->getProductInfoAttribute();
+                return $activity;
+            });
     }
 
     /**
@@ -102,15 +107,29 @@ class Activity extends Model
                 'icon' => 'robux'
             ];
         } else {
-            // For other products, we need to get product_name from the order
+            // For other products, get product info from order
             $order = \App\Models\Order::where('order_id', $this->order_id)->first();
             $productName = $order ? $order->product_name : $this->game_type;
+            
+            // Get product image if available
+            $productImage = null;
+            if ($order) {
+                $product = \App\Models\Product::where('game_type', $this->game_type)->first();
+                if ($product) {
+                    if ($product->image) {
+                        $productImage = asset($product->image);
+                    } elseif ($product->image_url) {
+                        $productImage = $product->image_url;
+                    }
+                }
+            }
             
             return [
                 'type' => 'product',
                 'name' => $productName ?: $this->game_type,
-                'amount' => $this->formatted_amount . ' items',
-                'icon' => 'product'
+                'amount' => $this->formatted_amount . ' ' . ($productName ?: $this->game_type),
+                'icon' => 'product',
+                'image' => $productImage
             ];
         }
     }

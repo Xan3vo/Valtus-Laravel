@@ -115,10 +115,11 @@
                 <span class="text-white/70 text-sm sm:text-base">Description</span>
                 <textarea 
                     name="description" 
-                    rows="3"
-                    class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
-                    placeholder="Optional product description..."
+                    rows="6"
+                    class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base font-mono whitespace-pre-wrap" 
+                    placeholder="Optional product description...&#10;&#10;Contoh:&#10;❗PERHATIAN:&#10;Pastikan akun kalian sudah tergabung di komunitas Roblox Valtus Studios selama minimal 15 hari sebelum melakukan pemesanan.&#10;🔗 Link komunitas: https://www.roblox.com/communities/35148970/Valtus-Studios#!/about&#10;&#10;⛔ Jika akun kalian belum berada di komunitas selama 15 hari, Robux tidak akan bisa dikirim dan proses tidak dapat dilanjutkan."
                 >{{ old('description', $product->description ?? '') }}</textarea>
+                <p class="mt-1 text-white/50 text-xs sm:text-sm">Gunakan Enter untuk baris baru, spasi akan dipertahankan</p>
             </label>
 
             <label class="block mt-4 sm:mt-6">
@@ -225,6 +226,83 @@
             </div>
         </div>
 
+        <!-- Discount Configuration -->
+        <div class="rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5">
+            <h3 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 flex items-center gap-2">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Discount Configuration
+            </h3>
+            
+            <label class="flex items-center gap-3 mb-4">
+                <input 
+                    name="discount_active" 
+                    type="checkbox" 
+                    value="1"
+                    id="discountActiveCheckbox"
+                    {{ old('discount_active', $product->discount_active ?? false) ? 'checked' : '' }}
+                    class="w-4 h-4 text-emerald-600 bg-black/30 border-white/20 rounded focus:ring-emerald-500 focus:ring-2"
+                />
+                <span class="text-white/70 text-sm sm:text-base">Enable Discount</span>
+            </label>
+
+            <div id="discountFields" class="space-y-4 {{ old('discount_active', $product->discount_active ?? false) ? '' : 'hidden' }}">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <label class="block">
+                        <span class="text-white/70 text-sm sm:text-base">Discount Method *</span>
+                        <select 
+                            name="discount_method" 
+                            id="discountMethod"
+                            class="mt-2 w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
+                        >
+                            <option value="">Pilih Metode</option>
+                            <option value="percentage" {{ old('discount_method', $product->discount_method ?? '') == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                            <option value="fixed_amount" {{ old('discount_method', $product->discount_method ?? '') == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
+                        </select>
+                        <p class="mt-1 text-white/50 text-xs sm:text-sm">Pilih salah satu: Persentase atau Nominal</p>
+                    </label>
+
+                    <label class="block">
+                        <span class="text-white/70 text-sm sm:text-base">Discount Value *</span>
+                        <div class="mt-2 flex items-center gap-2">
+                            <input 
+                                name="discount_value" 
+                                type="number" 
+                                step="0.01" 
+                                min="0"
+                                id="discountValue"
+                                value="{{ old('discount_value', $product->discount_value ?? '') }}"
+                                class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-black/30 border border-white/20 text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-sm sm:text-base" 
+                                placeholder="0"
+                            />
+                            <span id="discountUnit" class="text-white/60 text-sm sm:text-base">%</span>
+                        </div>
+                        <p class="mt-1 text-white/50 text-xs sm:text-sm" id="discountHint">Masukkan nilai persentase (0-100)</p>
+                    </label>
+                </div>
+
+                <!-- Discount Preview -->
+                <div class="mt-4 p-3 sm:p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                    <h4 class="text-yellow-300 font-medium mb-3 text-sm sm:text-base">Discount Preview:</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
+                        <div>
+                            <span class="text-white/60">Harga Setelah Pajak:</span>
+                            <div class="text-white font-medium" id="discount-preview-base">Rp 0</div>
+                        </div>
+                        <div>
+                            <span class="text-white/60">Diskon:</span>
+                            <div class="text-yellow-300 font-medium" id="discount-preview-amount">-Rp 0</div>
+                        </div>
+                        <div>
+                            <span class="text-yellow-300">Harga Final:</span>
+                            <div class="text-yellow-300 font-bold text-sm sm:text-lg" id="discount-preview-final">Rp 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Status -->
         <div class="rounded-lg border border-white/20 p-4 sm:p-6 bg-white/5">
             <h3 class="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">Status</h3>
@@ -322,6 +400,95 @@
     
     // Initial calculation
     updatePreview();
+    
+    // Discount toggle functionality
+    const discountActiveCheckbox = document.getElementById('discountActiveCheckbox');
+    const discountFields = document.getElementById('discountFields');
+    const discountMethod = document.getElementById('discountMethod');
+    const discountValue = document.getElementById('discountValue');
+    const discountUnit = document.getElementById('discountUnit');
+    const discountHint = document.getElementById('discountHint');
+    
+    function updateDiscountFields() {
+        if (discountActiveCheckbox.checked) {
+            discountFields.classList.remove('hidden');
+        } else {
+            discountFields.classList.add('hidden');
+            discountMethod.value = '';
+            discountValue.value = '';
+        }
+        updateDiscountPreview();
+    }
+    
+    function updateDiscountMethod() {
+        const method = discountMethod.value;
+        if (method === 'percentage') {
+            discountUnit.textContent = '%';
+            discountHint.textContent = 'Masukkan nilai persentase (0-100)';
+            discountValue.setAttribute('max', '100');
+        } else if (method === 'fixed_amount') {
+            discountUnit.textContent = 'Rp';
+            discountHint.textContent = 'Masukkan nilai nominal dalam Rupiah';
+            discountValue.removeAttribute('max');
+        } else {
+            discountUnit.textContent = '';
+            discountHint.textContent = '';
+        }
+        updateDiscountPreview();
+    }
+    
+    function updateDiscountPreview() {
+        const price = parseFloat(document.querySelector('input[name="price"]').value) || 0;
+        const taxRate = parseFloat(document.querySelector('input[name="tax_rate"]').value) || 0;
+        const totalPrice = price + (price * taxRate / 100);
+        
+        const baseEl = document.getElementById('discount-preview-base');
+        const amountEl = document.getElementById('discount-preview-amount');
+        const finalEl = document.getElementById('discount-preview-final');
+        
+        baseEl.textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        
+        if (discountActiveCheckbox.checked && discountMethod.value && discountValue.value) {
+            const method = discountMethod.value;
+            const value = parseFloat(discountValue.value) || 0;
+            
+            let discountAmount = 0;
+            if (method === 'percentage') {
+                discountAmount = totalPrice * (value / 100);
+            } else { // fixed_amount
+                discountAmount = Math.min(value, totalPrice);
+            }
+            
+            const finalPrice = Math.max(0, totalPrice - discountAmount);
+            
+            amountEl.textContent = '-Rp ' + discountAmount.toLocaleString('id-ID');
+            finalEl.textContent = 'Rp ' + finalPrice.toLocaleString('id-ID');
+        } else {
+            amountEl.textContent = '-Rp 0';
+            finalEl.textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        }
+    }
+    
+    if (discountActiveCheckbox) {
+        discountActiveCheckbox.addEventListener('change', updateDiscountFields);
+    }
+    
+    if (discountMethod) {
+        discountMethod.addEventListener('change', updateDiscountMethod);
+        // Update on load
+        updateDiscountMethod();
+    }
+    
+    if (discountValue) {
+        discountValue.addEventListener('input', updateDiscountPreview);
+    }
+    
+    // Also update discount preview when price or tax changes
+    document.querySelector('input[name="price"]')?.addEventListener('input', updateDiscountPreview);
+    document.querySelector('input[name="tax_rate"]')?.addEventListener('input', updateDiscountPreview);
+    
+    // Initialize discount fields state
+    updateDiscountFields();
     
     // Initialize form state for editing
     document.addEventListener('DOMContentLoaded', function() {

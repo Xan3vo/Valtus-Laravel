@@ -37,6 +37,9 @@ class ProductController extends Controller
             'sort_order' => 'integer|min:0',
             'image_url' => 'nullable|url',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'discount_active' => 'boolean',
+            'discount_method' => 'nullable|in:percentage,fixed_amount',
+            'discount_value' => 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -49,6 +52,9 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active'),
             'sort_order' => $request->sort_order ?? 0,
             'image_url' => $request->image_url,
+            'discount_active' => $request->boolean('discount_active'),
+            'discount_method' => $request->boolean('discount_active') ? $request->discount_method : null,
+            'discount_value' => $request->boolean('discount_active') && $request->discount_method ? $request->discount_value : null,
         ];
 
         // Determine game_type from select or custom input
@@ -95,6 +101,9 @@ class ProductController extends Controller
             'sort_order' => 'integer|min:0',
             'image_url' => 'nullable|url',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'discount_active' => 'boolean',
+            'discount_method' => 'nullable|in:percentage,fixed_amount',
+            'discount_value' => 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -107,6 +116,9 @@ class ProductController extends Controller
             'is_active' => $request->boolean('is_active'),
             'sort_order' => $request->sort_order ?? 0,
             'image_url' => $request->image_url,
+            'discount_active' => $request->boolean('discount_active'),
+            'discount_method' => $request->boolean('discount_active') ? $request->discount_method : null,
+            'discount_value' => $request->boolean('discount_active') && $request->discount_method ? $request->discount_value : null,
         ];
 
         // Determine game_type from select or custom input

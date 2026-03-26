@@ -29,7 +29,7 @@
             <a href="{{ route('home') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Beranda</a>
             <a href="{{ route('products') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Produk</a>
             <a href="{{ route('user.status') }}" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Cek Pesanan</a>
-            <a href="#" onclick="showHelpModal()" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
+            <a href="javascript:void(0);" onclick="showHelpModal(); return false;" class="block text-gray-200 hover:text-white transition-colors duration-200 font-medium py-2">Bantuan</a>
         </div>
     </div>
 </header>
@@ -104,11 +104,33 @@
 
         <aside class="space-y-4">
             <div class="rounded-xl border border-white/10 bg-white/5 p-6">
+                <!-- Promo Code Section -->
+                <div class="mb-4 pb-4 border-b border-white/10">
+                    <div class="text-white/90 font-medium mb-2 text-sm">Promo Code / Kode Unik</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="promo-code-input" placeholder="Masukkan kode promo" 
+                               class="flex-1 px-3 py-2 rounded-md bg-black/30 border border-white/15 text-white placeholder-white/50 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50">
+                        <button id="apply-promo-btn" class="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed">
+                            Terapkan
+                        </button>
+                    </div>
+                    <div id="promo-error" class="mt-2 text-red-400 text-xs hidden"></div>
+                    <div id="promo-success" class="mt-2 text-emerald-400 text-xs hidden"></div>
+                </div>
+                
                 <div class="text-white/90 font-medium">Detail Harga</div>
                 <dl class="mt-3 space-y-2 text-sm">
                     <div class="flex items-center justify-between">
                         <dt class="text-white/60">Total Pesanan</dt>
                         <dd id="s_price" class="text-white">Rp {{ number_format(session('selected_product_price', 0), 0, ',', '.') }}</dd>
+                    </div>
+                    <div id="product-discount-row" class="flex items-center justify-between hidden">
+                        <dt class="text-white/60">Diskon Produk</dt>
+                        <dd id="product-discount-amount" class="text-yellow-300">-Rp 0</dd>
+                    </div>
+                    <div id="promo-discount-row" class="flex items-center justify-between hidden">
+                        <dt class="text-white/60">Diskon Promo</dt>
+                        <dd id="promo-discount-amount" class="text-yellow-300">-Rp 0</dd>
                     </div>
                     <div class="flex items-center justify-between">
                         <dt class="text-white/60">Biaya Admin</dt>
@@ -128,7 +150,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                     </svg>
-                    Pilih Pembayaran
+                    <span id="payment-btn-text">Pilih Pembayaran</span>
                 </button>
             </div>
         </aside>
@@ -169,16 +191,172 @@
     (function(){
         const productName = '{{ session("selected_product_name", "") }}';
         const productPrice = {{ (int) (session('selected_product_price', 0)) }};
+        const productOriginalPrice = {{ (int) (session('product_original_price', session('selected_product_price', 0))) }};
+        const productDiscountAmount = {{ (int) (session('product_discount_amount', 0)) }};
+        const productHasDiscount = {{ session('product_has_discount', false) ? 'true' : 'false' }};
         const username = '{{ session("selected_username", "") }}';
         const email = '{{ session("selected_email", "") }}';
         
+        let promoCodeData = null;
+        
         function fmt(n){return new Intl.NumberFormat('id-ID').format(n)}
+        
+        // Update price display
+        function updatePriceDisplay() {
+            let basePrice = productOriginalPrice || productPrice;
+            let finalPrice = productPrice;
+            
+            // Apply product discount
+            if (productHasDiscount && productDiscountAmount > 0) {
+                basePrice = productOriginalPrice;
+                finalPrice = productPrice; // Already includes product discount
+                document.getElementById('product-discount-row').classList.remove('hidden');
+                document.getElementById('product-discount-amount').textContent = '-Rp ' + fmt(productDiscountAmount);
+            } else {
+                document.getElementById('product-discount-row').classList.add('hidden');
+            }
+            
+            // Apply promo discount
+            if (promoCodeData && promoCodeData.success) {
+                finalPrice = promoCodeData.final_price;
+                document.getElementById('promo-discount-row').classList.remove('hidden');
+                document.getElementById('promo-discount-amount').textContent = '-Rp ' + fmt(promoCodeData.discount_amount);
+            } else {
+                document.getElementById('promo-discount-row').classList.add('hidden');
+            }
+            
+            document.getElementById('s_price').textContent = 'Rp ' + fmt(basePrice);
+            document.getElementById('s_total').textContent = 'Rp ' + fmt(finalPrice);
+        }
+        
+        // Initialize price display
+        updatePriceDisplay();
+        
+        // Check payment mode and set button behavior
+        let paymentMode = 'manual'; // Default to manual
+        
+        // Fetch payment mode from API
+        fetch('/api/payment-methods')
+            .then(response => response.json())
+            .then(data => {
+                if (data.payment_mode === 'gateway') {
+                    paymentMode = 'gateway';
+                    // Change button text to "Lanjut Pembayaran"
+                    document.getElementById('payment-btn-text').textContent = 'Lanjut Pembayaran';
+                } else {
+                    paymentMode = 'manual';
+                    // Keep button text as "Pilih Pembayaran"
+                    document.getElementById('payment-btn-text').textContent = 'Pilih Pembayaran';
+                }
+            })
+            .catch(() => {
+                // Default to manual if API fails
+                paymentMode = 'manual';
+            });
         
         // Payment button click handler
         document.getElementById('payment-btn').addEventListener('click', function() {
-            // Show payment method selection popup first
-            showPaymentMethodPopup(email);
+            if (paymentMode === 'gateway') {
+                // Gateway mode: show confirmation popup directly, then proceed to Midtrans
+                showGatewayConfirmationPopup(email);
+            } else {
+                // Manual mode: show payment method selection popup first
+                showPaymentMethodPopup(email);
+            }
         });
+        
+        function showGatewayConfirmationPopup(email) {
+            // Create confirmation popup for gateway mode
+            const popup = document.createElement('div');
+            popup.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center';
+            
+            popup.innerHTML = `
+                <div class="rounded-xl border border-white/15 bg-[#111827] p-6 w-[min(92vw,500px)]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xl font-semibold text-white">Konfirmasi Pembayaran</div>
+                        <button class="text-white/60 hover:text-white" id="closeGatewayConfirmPopup">✕</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="text-white/70 text-sm">
+                            Anda akan melanjutkan ke halaman pembayaran Midtrans dengan detail:
+                        </div>
+                        <div class="p-4 rounded-lg bg-white/5 border border-white/10">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Produk:</span>
+                                    <span class="text-white">${productName}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Username:</span>
+                                    <span class="text-white">${username}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Email:</span>
+                                    <span class="text-white">${email}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Metode Pembayaran:</span>
+                                    <span class="text-emerald-300">Via Midtrans (Pilih di halaman berikutnya)</span>
+                                </div>
+                                ${productHasDiscount ? `
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Harga Asli:</span>
+                                    <span class="text-white/50 line-through">Rp ${fmt(productOriginalPrice)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Diskon Produk:</span>
+                                    <span class="text-yellow-300">-Rp ${fmt(productDiscountAmount)}</span>
+                                </div>
+                                ` : ''}
+                                ${promoCodeData && promoCodeData.success ? `
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Diskon Promo:</span>
+                                    <span class="text-yellow-300">-Rp ${fmt(promoCodeData.discount_amount)}</span>
+                                </div>
+                                ` : ''}
+                                <div class="flex justify-between font-semibold">
+                                    <span class="text-white/60">Total:</span>
+                                    <span class="text-white">Rp ${fmt(promoCodeData && promoCodeData.success ? promoCodeData.final_price : productPrice)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-blue-200 text-xs">
+                                    Anda akan diarahkan ke halaman pembayaran Midtrans. Di sana, Anda dapat memilih metode pembayaran yang tersedia (QRIS, E-Wallet, Bank Transfer, atau Kartu Kredit).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="cancelGatewayPayment" class="flex-1 px-4 py-2 rounded-md border border-white/20 text-white hover:bg-white/5 transition-colors">
+                                Batal
+                            </button>
+                            <button id="confirmGatewayPayment" class="flex-1 px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
+                                Lanjutkan ke Midtrans
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            document.body.appendChild(popup);
+            
+            // Close popup handlers
+            popup.querySelector('#closeGatewayConfirmPopup').addEventListener('click', () => popup.remove());
+            popup.querySelector('#cancelGatewayPayment').addEventListener('click', () => popup.remove());
+            popup.addEventListener('click', (e) => {
+                if (e.target === popup) popup.remove();
+            });
+            
+            // Confirm payment handler - create order with gateway mode (no selected method, will be chosen in Midtrans)
+            popup.querySelector('#confirmGatewayPayment').addEventListener('click', () => {
+                popup.remove();
+                // Create order with gateway mode, no selected method (will choose in Midtrans)
+                createOrderAndRedirect(email, 'gateway', null);
+            });
+        }
         
         function showPaymentMethodPopup(email) {
             // Create payment method selection popup
@@ -191,7 +369,7 @@
                         <button class="text-white/60 hover:text-white" id="closeMethodPopup">✕</button>
                     </div>
                     <div class="text-white/70 text-sm mb-6">Pilih metode pembayaran yang Anda inginkan:</div>
-                    <div id="paymentMethodsContainer" class="space-y-3">
+                    <div id="paymentMethodsContainer" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
                         <div class="text-center text-white/50 py-8">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
                             <div>Memuat metode pembayaran...</div>
@@ -212,113 +390,49 @@
         }
         
         function loadPaymentMethods(email, popup) {
-            fetch('/api/payment-mode')
+            fetch('/api/payment-methods')
                 .then(response => response.json())
                 .then(data => {
                     const container = popup.querySelector('#paymentMethodsContainer');
                     
-                    if (data.payment_mode === 'manual') {
-                        // Manual payment - only QRIS
-                        container.innerHTML = `
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="qris">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-emerald-500/30 to-blue-500/30 flex items-center justify-center">
-                                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">QRIS Transfer</div>
-                                        <div class="text-white/60 text-sm">Scan QR Code untuk pembayaran instan</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Manual</div>
-                                </div>
-                            </div>
-                        `;
-                    } else if (data.payment_mode === 'gateway') {
-                        // Gateway payment - multiple options
-                        container.innerHTML = `
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="bca">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-red-500/30 to-orange-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">BCA</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">BCA Virtual Account</div>
-                                        <div class="text-white/60 text-sm">Transfer ke rekening BCA</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="mandiri">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-red-500/30 to-yellow-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">MDR</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">Mandiri Virtual Account</div>
-                                        <div class="text-white/60 text-sm">Transfer ke rekening Mandiri</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="bni">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-yellow-500/30 to-orange-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">BNI</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">BNI Virtual Account</div>
-                                        <div class="text-white/60 text-sm">Transfer ke rekening BNI</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="dana">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">DANA</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">DANA E-Wallet</div>
-                                        <div class="text-white/60 text-sm">Pembayaran via DANA</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="gopay">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">GOPAY</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">GoPay E-Wallet</div>
-                                        <div class="text-white/60 text-sm">Pembayaran via GoPay</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="ovo">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">OVO</span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="text-white font-medium">OVO E-Wallet</div>
-                                        <div class="text-white/60 text-sm">Pembayaran via OVO</div>
-                                    </div>
-                                    <div class="text-emerald-400 text-sm font-medium">Gateway</div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        // Default to manual if no mode set
+                    if (data.error) {
                         container.innerHTML = `
                             <div class="text-center text-red-400 py-4">
-                                <div class="text-sm">Error: Mode pembayaran tidak dikonfigurasi</div>
+                                <div class="text-sm">${data.message || 'Error memuat metode pembayaran'}</div>
                             </div>
                         `;
+                        return;
                     }
+                    
+                    if (!data.methods || data.methods.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center text-red-400 py-4">
+                                <div class="text-sm">Tidak ada metode pembayaran tersedia</div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Render all payment methods dynamically
+                    const methodsHtml = data.methods.map(method => {
+                        const iconHtml = getPaymentMethodIcon(method.icon, method.code);
+                        const typeLabel = data.payment_mode === 'gateway' ? 'Gateway' : 'Manual';
+                        
+                        return `
+                            <div class="payment-method p-4 rounded-lg border border-white/10 bg-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors" data-method="${method.code}">
+                                <div class="flex items-center gap-4">
+                                    ${iconHtml}
+                                    <div class="flex-1">
+                                        <div class="text-white font-medium">${method.name}</div>
+                                        <div class="text-white/60 text-sm">${method.description}</div>
+                                    </div>
+                                    <div class="text-emerald-400 text-sm font-medium">${typeLabel}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    container.innerHTML = methodsHtml;
                     
                     // Add click handlers for payment methods
                     popup.querySelectorAll('.payment-method').forEach(method => {
@@ -347,19 +461,59 @@
                 });
         }
         
-        function showPaymentConfirmationPopup(email, paymentMode, selectedMethod) {
-            // Get method display name
-            const methodNames = {
-                'qris': 'QRIS Transfer',
-                'bca': 'BCA Virtual Account',
-                'mandiri': 'Mandiri Virtual Account',
-                'bni': 'BNI Virtual Account',
-                'dana': 'DANA E-Wallet',
-                'gopay': 'GoPay E-Wallet',
-                'ovo': 'OVO E-Wallet'
+        // Helper function to get payment method icon HTML
+        function getPaymentMethodIcon(iconType, code) {
+            const icons = {
+                'qris': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-emerald-500/30 to-blue-500/30 flex items-center justify-center"><svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg></div>',
+                'bca': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-red-500/30 to-orange-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">BCA</span></div>',
+                'mandiri': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-red-500/30 to-yellow-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">MDR</span></div>',
+                'bni': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-yellow-500/30 to-orange-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">BNI</span></div>',
+                'permata': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500/30 to-indigo-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">PMT</span></div>',
+                'gopay': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">GOPAY</span></div>',
+                'dana': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">DANA</span></div>',
+                'ovo': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center"><span class="text-white font-bold text-sm">OVO</span></div>',
+                'linkaja': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-yellow-500/30 to-orange-500/30 flex items-center justify-center"><span class="text-white font-bold text-xs">LINK</span></div>',
+                'shopeepay': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-orange-500/30 to-red-500/30 flex items-center justify-center"><span class="text-white font-bold text-xs">SPAY</span></div>',
+                'credit_card': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500/30 to-indigo-500/30 flex items-center justify-center"><svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></div>',
+                'alfamart': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center"><span class="text-white font-bold text-xs">ALFA</span></div>',
+                'indomaret': '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500/30 to-cyan-500/30 flex items-center justify-center"><span class="text-white font-bold text-xs">INDO</span></div>'
             };
             
-            const methodName = methodNames[selectedMethod] || selectedMethod;
+            return icons[iconType] || icons[code] || '<div class="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-500/30 to-gray-600/30 flex items-center justify-center"><span class="text-white font-bold text-xs">PAY</span></div>';
+        }
+        
+        function showPaymentConfirmationPopup(email, paymentMode, selectedMethod) {
+            // Get method display name - fetch from API to get accurate name
+            fetch('/api/payment-methods')
+                .then(response => response.json())
+                .then(data => {
+                    const method = data.methods ? data.methods.find(m => m.code === selectedMethod) : null;
+                    const methodName = method ? method.name : selectedMethod;
+                    showConfirmationPopupWithMethodName(email, paymentMode, selectedMethod, methodName);
+                })
+                .catch(() => {
+                    // Fallback if API fails
+                    const methodNames = {
+                        'qris': 'QRIS Transfer',
+                        'bca_va': 'BCA Virtual Account', 'bca': 'BCA Virtual Account',
+                        'mandiri_va': 'Mandiri Virtual Account', 'mandiri': 'Mandiri Virtual Account',
+                        'bni_va': 'BNI Virtual Account', 'bni': 'BNI Virtual Account',
+                        'permata_va': 'Permata Virtual Account',
+                        'dana': 'DANA E-Wallet',
+                        'gopay': 'GoPay E-Wallet',
+                        'ovo': 'OVO E-Wallet',
+                        'linkaja': 'LinkAja',
+                        'shopeepay': 'ShopeePay',
+                        'credit_card': 'Kartu Kredit/Debit',
+                        'alfamart': 'Alfamart',
+                        'indomaret': 'Indomaret'
+                    };
+                    const methodName = methodNames[selectedMethod] || selectedMethod;
+                    showConfirmationPopupWithMethodName(email, paymentMode, selectedMethod, methodName);
+                });
+        }
+        
+        function showConfirmationPopupWithMethodName(email, paymentMode, selectedMethod, methodName) {
             
             // Create confirmation popup
             const popup = document.createElement('div');
@@ -392,9 +546,25 @@
                                     <span class="text-white/60">Metode Pembayaran:</span>
                                     <span class="text-emerald-300">${methodName}</span>
                                 </div>
+                                ${productHasDiscount ? `
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Harga Asli:</span>
+                                    <span class="text-white/50 line-through">Rp ${fmt(productOriginalPrice)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Diskon Produk:</span>
+                                    <span class="text-yellow-300">-Rp ${fmt(productDiscountAmount)}</span>
+                                </div>
+                                ` : ''}
+                                ${promoCodeData && promoCodeData.success ? `
+                                <div class="flex justify-between">
+                                    <span class="text-white/60">Diskon Promo:</span>
+                                    <span class="text-yellow-300">-Rp ${fmt(promoCodeData.discount_amount)}</span>
+                                </div>
+                                ` : ''}
                                 <div class="flex justify-between font-semibold">
                                     <span class="text-white/60">Total:</span>
-                                    <span class="text-white">Rp ${fmt(productPrice)}</span>
+                                    <span class="text-white">Rp ${fmt(promoCodeData && promoCodeData.success ? promoCodeData.final_price : productPrice)}</span>
                                 </div>
                             </div>
                         </div>
@@ -430,7 +600,77 @@
             });
         }
         
+        // Promo Code Logic
+        const promoCodeInput = document.getElementById('promo-code-input');
+        const applyPromoBtn = document.getElementById('apply-promo-btn');
+        const promoError = document.getElementById('promo-error');
+        const promoSuccess = document.getElementById('promo-success');
+        
+        function resetPromoMessages() {
+            promoError.classList.add('hidden');
+            promoSuccess.classList.add('hidden');
+        }
+        
+        applyPromoBtn.addEventListener('click', async () => {
+            const code = promoCodeInput.value.trim().toUpperCase();
+            resetPromoMessages();
+            
+            if (!code) {
+                promoError.textContent = 'Kode promo tidak boleh kosong.';
+                promoError.classList.remove('hidden');
+                return;
+            }
+            
+            applyPromoBtn.disabled = true;
+            applyPromoBtn.textContent = 'Menerapkan...';
+            
+            try {
+                const basePrice = productOriginalPrice || productPrice;
+                const response = await fetch('{{ route("api.promo-code.validate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ code: code, amount: basePrice })
+                });
+                
+                const contentType = response.headers.get('content-type');
+                const isJson = contentType && contentType.includes('application/json');
+                
+                if (!isJson) {
+                    throw new Error('Server mengembalikan response non-JSON.');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    promoCodeData = data;
+                    promoSuccess.textContent = data.message || 'Kode promo berhasil diterapkan!';
+                    promoSuccess.classList.remove('hidden');
+                    updatePriceDisplay();
+                } else {
+                    promoError.textContent = data.message || 'Kode promo tidak valid.';
+                    promoError.classList.remove('hidden');
+                    promoCodeData = null;
+                    updatePriceDisplay();
+                }
+            } catch (error) {
+                console.error('Error applying promo code:', error);
+                promoError.textContent = 'Gagal menerapkan kode promo. Silakan coba lagi.';
+                promoError.classList.remove('hidden');
+                promoCodeData = null;
+                updatePriceDisplay();
+            } finally {
+                applyPromoBtn.disabled = false;
+                applyPromoBtn.textContent = 'Terapkan';
+            }
+        });
+        
         function createOrderAndRedirect(email, paymentMode, selectedMethod) {
+            // For gateway mode, if no selectedMethod, use empty string (will be chosen in Midtrans)
+            const methodToSubmit = (paymentMode === 'gateway' && !selectedMethod) ? '' : selectedMethod;
+            
             // Create form and submit to create order securely
             const form = document.createElement('form');
             form.method = 'POST';
@@ -445,9 +685,18 @@
                 'username': username,
                 'email': email,
                 'payment_mode': paymentMode,
-                'selected_method': selectedMethod,
+                'selected_method': methodToSubmit,
                 '_token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             };
+            
+            // Add promo code data if available
+            if (promoCodeData && promoCodeData.success) {
+                fields['promo_code_id'] = promoCodeData.promo_code_id;
+                fields['promo_code'] = promoCodeData.code;
+                fields['original_price'] = productOriginalPrice || productPrice;
+                fields['discount_amount'] = promoCodeData.discount_amount;
+                fields['product_discount_amount'] = productDiscountAmount || 0;
+            }
             
             Object.entries(fields).forEach(([key, value]) => {
                 const input = document.createElement('input');
@@ -478,9 +727,14 @@
         });
 
         // Help modal functions
-        function showHelpModal() {
+        function showHelpModal(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             document.getElementById('helpModal').classList.remove('hidden');
             loadContactInfo();
+            return false;
         }
 
         function hideHelpModal() {
@@ -489,16 +743,25 @@
 
         async function loadContactInfo() {
             try {
-                const response = await fetch('/api/contact-info');
-                const data = await response.json();
-                
                 const contactList = document.getElementById('contactList');
                 const noContactMessage = document.getElementById('noContactMessage');
                 
-                contactList.innerHTML = '';
+                // Reset states
+                if (contactList) {
+                    contactList.innerHTML = '';
+                    contactList.classList.remove('hidden');
+                }
+                if (noContactMessage) {
+                    noContactMessage.classList.add('hidden');
+                }
+                
+                const response = await fetch('/api/contact-info');
+                const data = await response.json();
                 
                 if (data.contacts && data.contacts.length > 0) {
-                    noContactMessage.classList.add('hidden');
+                    if (noContactMessage) {
+                        noContactMessage.classList.add('hidden');
+                    }
                     
                     data.contacts.forEach(contact => {
                         const contactItem = document.createElement('div');
@@ -522,16 +785,28 @@
                             </div>
                         `;
                         
-                        contactList.appendChild(contactItem);
+                        if (contactList) {
+                            contactList.appendChild(contactItem);
+                        }
                     });
                 } else {
-                    contactList.classList.add('hidden');
-                    noContactMessage.classList.remove('hidden');
+                    if (contactList) {
+                        contactList.classList.add('hidden');
+                    }
+                    if (noContactMessage) {
+                        noContactMessage.classList.remove('hidden');
+                    }
                 }
             } catch (error) {
                 console.error('Error loading contact info:', error);
-                document.getElementById('contactList').classList.add('hidden');
-                document.getElementById('noContactMessage').classList.remove('hidden');
+                const contactList = document.getElementById('contactList');
+                const noContactMessage = document.getElementById('noContactMessage');
+                if (contactList) {
+                    contactList.classList.add('hidden');
+                }
+                if (noContactMessage) {
+                    noContactMessage.classList.remove('hidden');
+                }
             }
         }
 
@@ -551,3 +826,4 @@
     })();
 </script>
 @endsection
+

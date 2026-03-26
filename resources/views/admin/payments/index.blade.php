@@ -18,7 +18,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div class="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10">
             <div class="flex items-center">
                 <div class="p-2 sm:p-3 rounded-lg bg-yellow-500/20">
@@ -46,6 +46,20 @@
                 </div>
             </div>
         </div>
+        
+        <div class="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10">
+            <div class="flex items-center">
+                <div class="p-2 sm:p-3 rounded-lg bg-red-500/20">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <div class="ml-3 sm:ml-4">
+                    <p class="text-white/60 text-xs sm:text-sm">Ditolak (Failed)</p>
+                    <p class="text-xl sm:text-2xl font-bold text-white">{{ $allOrders->where('payment_status', 'Failed')->count() }}</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Search and Filter Form -->
@@ -64,7 +78,7 @@
             <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>Semua Status</option>
             <option value="waiting_confirmation" {{ request('status') === 'waiting_confirmation' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
             <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
-            <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Failed</option>
+            <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Ditolak</option>
         </select>
         <div class="flex gap-2 sm:gap-3">
             <input 
@@ -120,9 +134,26 @@
                         </td>
                         <td class="px-2 sm:px-4 py-2 sm:py-3">
                             @if($order->game_type === 'Robux')
-                                <div class="flex items-center gap-1 sm:gap-2">
-                                    <img src="/assets/images/robux.png" alt="Robux" class="h-3 w-3 sm:h-4 sm:w-4">
-                                    <span class="text-xs sm:text-sm">{{ $order->game_type }}</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="flex items-center gap-1.5">
+                                        <img src="/assets/images/robux.png" alt="Robux" class="h-4 w-4 flex-shrink-0">
+                                        <span class="text-xs sm:text-sm text-white font-medium">{{ $order->game_type }}</span>
+                                    </div>
+                                    @if($order->purchase_method === 'group')
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-purple-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            </svg>
+                                            Group
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/40 text-emerald-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                            </svg>
+                                            Gamepass
+                                        </span>
+                                    @endif
                                 </div>
                             @else
                                 <div>
@@ -148,21 +179,26 @@
                                     <div class="h-2 w-2 sm:h-3 sm:w-3 bg-blue-400 rounded-full"></div>
                                     <span class="font-semibold text-xs sm:text-sm">Menunggu Pembayaran</span>
                                 </div>
-                            @elseif($order->payment_status === 'completed')
-                                <div class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-200 border border-emerald-500/30 shadow-lg">
-                                    <div class="h-2 w-2 sm:h-3 sm:w-3 bg-emerald-400 rounded-full"></div>
-                                    <span class="font-semibold text-xs sm:text-sm">Selesai</span>
-                                </div>
-                            @else
-                                <div class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-500/20 to-slate-500/20 text-gray-200 border border-gray-500/30 shadow-lg">
-                                    <div class="h-2 w-2 sm:h-3 sm:w-3 bg-gray-400 rounded-full"></div>
-                                    <span class="font-semibold text-xs sm:text-sm">{{ ucfirst($order->payment_status) }}</span>
-                                </div>
-                            @endif
+                        @elseif($order->payment_status === 'Completed')
+                            <div class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-200 border border-emerald-500/30 shadow-lg">
+                                <div class="h-2 w-2 sm:h-3 sm:w-3 bg-emerald-400 rounded-full"></div>
+                                <span class="font-semibold text-xs sm:text-sm">Selesai</span>
+                            </div>
+                        @elseif($order->payment_status === 'Failed')
+                            <div class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-200 border border-red-500/30 shadow-lg">
+                                <div class="h-2 w-2 sm:h-3 sm:w-3 bg-red-400 rounded-full"></div>
+                                <span class="font-semibold text-xs sm:text-sm">Ditolak</span>
+                            </div>
+                        @else
+                            <div class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-500/20 to-slate-500/20 text-gray-200 border border-gray-500/30 shadow-lg">
+                                <div class="h-2 w-2 sm:h-3 sm:w-3 bg-gray-400 rounded-full"></div>
+                                <span class="font-semibold text-xs sm:text-sm">{{ ucfirst($order->payment_status) }}</span>
+                            </div>
+                        @endif
                         </td>
                         <td class="px-2 sm:px-4 py-2 sm:py-3">
                             @if($order->proof_file)
-                                <a href="/proofs/{{ $order->proof_file }}" target="_blank" 
+                                <a href="{{ route('admin.payments.download-proof', $order) }}" target="_blank" 
                                    class="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-200 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-200 shadow-lg hover:shadow-emerald-500/25">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -228,25 +264,48 @@
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $orders->previousPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
+                        <a href="{{ $orders->appends(request()->query())->previousPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </a>
                     @endif
 
-                    {{-- Pagination Elements --}}
-                    @foreach ($orders->getUrlRange(1, $orders->lastPage()) as $page => $url)
-                        @if ($page == $orders->currentPage())
+                    {{-- Pagination Elements with smart pagination --}}
+                    @php
+                        $currentPage = $orders->currentPage();
+                        $lastPage = $orders->lastPage();
+                        $onEachSide = 2; // Show 2 pages on each side of current page
+                    @endphp
+                    
+                    {{-- First page --}}
+                    @if ($currentPage > $onEachSide + 1)
+                        <a href="{{ $orders->appends(request()->query())->url(1) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">1</a>
+                        @if ($currentPage > $onEachSide + 2)
+                            <span class="px-2 py-1 text-xs sm:text-sm text-white/30">...</span>
+                        @endif
+                    @endif
+                    
+                    {{-- Pages around current page --}}
+                    @for ($page = max(1, $currentPage - $onEachSide); $page <= min($lastPage, $currentPage + $onEachSide); $page++)
+                        @if ($page == $currentPage)
                             <span class="px-2 py-1 text-xs sm:text-sm text-emerald-400 bg-emerald-500/20 rounded font-medium">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $page }}</a>
+                            <a href="{{ $orders->appends(request()->query())->url($page) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $page }}</a>
                         @endif
-                    @endforeach
+                    @endfor
+                    
+                    {{-- Last page --}}
+                    @if ($currentPage < $lastPage - $onEachSide)
+                        @if ($currentPage < $lastPage - $onEachSide - 1)
+                            <span class="px-2 py-1 text-xs sm:text-sm text-white/30">...</span>
+                        @endif
+                        <a href="{{ $orders->appends(request()->query())->url($lastPage) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $lastPage }}</a>
+                    @endif
 
                     {{-- Next Page Link --}}
                     @if ($orders->hasMorePages())
-                        <a href="{{ $orders->nextPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
+                        <a href="{{ $orders->appends(request()->query())->nextPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>

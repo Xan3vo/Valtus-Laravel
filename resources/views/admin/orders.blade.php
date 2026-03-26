@@ -20,7 +20,7 @@
     <!-- Order Type Tabs -->
     <div class="mb-4 sm:mb-6">
         <div class="flex space-x-1 bg-white/5 rounded-lg p-1">
-            <a href="{{ route('admin.orders', ['type' => 'robux'] + request()->except('type')) }}" 
+            <a href="{{ route('admin.orders', array_merge(['type' => 'robux'], request()->except(['type', 'page']))) }}" 
                class="flex-1 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-center transition-colors {{ $gameType === 'robux' ? 'bg-white text-black' : 'text-white/70 hover:text-white' }}">
                 <div class="flex items-center justify-center gap-1 sm:gap-2">
                     <img src="/assets/images/robux.png" alt="Robux" class="h-3 w-3 sm:h-4 sm:w-4">
@@ -28,7 +28,7 @@
                     <span class="sm:hidden">Robux</span>
                 </div>
             </a>
-            <a href="{{ route('admin.orders', ['type' => 'other'] + request()->except('type')) }}" 
+            <a href="{{ route('admin.orders', array_merge(['type' => 'other'], request()->except(['type', 'page']))) }}" 
                class="flex-1 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-center transition-colors {{ $gameType === 'other' ? 'bg-white text-black' : 'text-white/70 hover:text-white' }}">
                 <div class="flex items-center justify-center gap-1 sm:gap-2">
                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,6 +58,16 @@
             <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
             <option value="">Semua Status</option>
         </select>
+        @if($gameType === 'robux')
+        <select 
+            name="purchase_method" 
+            class="px-3 sm:px-4 py-2 sm:py-3 rounded-sm bg-black/30 border border-white/10 text-white text-sm sm:text-base"
+        >
+            <option value="" {{ request('purchase_method') ? '' : 'selected' }}>Semua Metode</option>
+            <option value="gamepass" {{ request('purchase_method') === 'gamepass' ? 'selected' : '' }}>Gamepass</option>
+            <option value="group" {{ request('purchase_method') === 'group' ? 'selected' : '' }}>Group</option>
+        </select>
+        @endif
         <div class="flex gap-2 sm:gap-3">
             <input 
                 name="date_from" 
@@ -110,15 +120,63 @@
                             <div class="text-xs text-white/50">{{ $order->email ?? 'No email' }}</div>
                         </td>
                         <td class="px-2 sm:px-4 py-2 sm:py-3">
+                            @php
+                            // Check payment gateway from database column
+                            $isMidtrans = $order->payment_gateway === 'midtrans';
+                            @endphp
+                            
                             @if($order->game_type === 'Robux')
-                                <div class="flex items-center gap-1 sm:gap-2">
-                                    <img src="/assets/images/robux.png" alt="Robux" class="h-3 w-3 sm:h-4 sm:w-4">
-                                    <span class="text-xs sm:text-sm">{{ $order->game_type }}</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="flex items-center gap-1.5">
+                                        <img src="/assets/images/robux.png" alt="Robux" class="h-4 w-4 flex-shrink-0">
+                                        <span class="text-xs sm:text-sm text-white font-medium">{{ $order->game_type }}</span>
+                                    </div>
+                                    @if($order->purchase_method === 'group')
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 text-purple-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            </svg>
+                                            Group
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/40 text-emerald-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                            </svg>
+                                            Gamepass
+                                        </span>
+                                    @endif
+                                    @if($isMidtrans)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/40 text-blue-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                            </svg>
+                                            Midtrans
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-gray-500/20 to-slate-500/20 border border-gray-500/40 text-gray-200 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            Manual
+                                        </span>
+                                    @endif
                                 </div>
                             @else
                                 <div>
                                     <div class="text-white font-medium text-xs sm:text-sm">{{ $order->product_name ?? $order->game_type }}</div>
-                                    <div class="text-xs text-white/50">{{ $order->game_type }}</div>
+                                    <div class="text-xs text-white/50 flex items-center gap-2 mt-1">
+                                        <span>{{ $order->game_type }}</span>
+                                        @if($isMidtrans)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/40 text-blue-200 shadow-sm">
+                                                Midtrans
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-gray-500/20 to-slate-500/20 border border-gray-500/40 text-gray-200 shadow-sm">
+                                                Manual
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             @endif
                         </td>
@@ -201,25 +259,48 @@
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $orders->previousPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
+                        <a href="{{ $orders->appends(request()->query())->previousPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </a>
                     @endif
 
-                    {{-- Pagination Elements --}}
-                    @foreach ($orders->getUrlRange(1, $orders->lastPage()) as $page => $url)
-                        @if ($page == $orders->currentPage())
+                    {{-- Pagination Elements with smart pagination --}}
+                    @php
+                        $currentPage = $orders->currentPage();
+                        $lastPage = $orders->lastPage();
+                        $onEachSide = 2; // Show 2 pages on each side of current page
+                    @endphp
+                    
+                    {{-- First page --}}
+                    @if ($currentPage > $onEachSide + 1)
+                        <a href="{{ $orders->appends(request()->query())->url(1) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">1</a>
+                        @if ($currentPage > $onEachSide + 2)
+                            <span class="px-2 py-1 text-xs sm:text-sm text-white/30">...</span>
+                        @endif
+                    @endif
+                    
+                    {{-- Pages around current page --}}
+                    @for ($page = max(1, $currentPage - $onEachSide); $page <= min($lastPage, $currentPage + $onEachSide); $page++)
+                        @if ($page == $currentPage)
                             <span class="px-2 py-1 text-xs sm:text-sm text-emerald-400 bg-emerald-500/20 rounded font-medium">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $page }}</a>
+                            <a href="{{ $orders->appends(request()->query())->url($page) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $page }}</a>
                         @endif
-                    @endforeach
+                    @endfor
+                    
+                    {{-- Last page --}}
+                    @if ($currentPage < $lastPage - $onEachSide)
+                        @if ($currentPage < $lastPage - $onEachSide - 1)
+                            <span class="px-2 py-1 text-xs sm:text-sm text-white/30">...</span>
+                        @endif
+                        <a href="{{ $orders->appends(request()->query())->url($lastPage) }}" class="px-2 py-1 text-xs sm:text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded transition-colors">{{ $lastPage }}</a>
+                    @endif
 
                     {{-- Next Page Link --}}
                     @if ($orders->hasMorePages())
-                        <a href="{{ $orders->nextPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
+                        <a href="{{ $orders->appends(request()->query())->nextPageUrl() }}" class="px-2 py-1 text-xs sm:text-sm text-white hover:text-emerald-400 bg-white/10 hover:bg-white/20 rounded transition-colors">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
